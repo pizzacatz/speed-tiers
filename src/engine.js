@@ -70,14 +70,14 @@ const Engine = (() => {
     const cur = compute(entity, spec, field, ABILITIES).speed;
     if (beats(cur)) return [{ label: 'already outspeeds', ok: true }];
     if (!trickRoom) {
-      for (let sp = spec.sp + 1; sp <= 32; sp++) { if (beats(compute(entity, { ...spec, sp }, field, ABILITIES).speed)) { out.push({ label: `SP ≥ ${sp}` }); break; } }
-      if (spec.align < 1) for (let sp = 0; sp <= 32; sp++) { if (beats(compute(entity, { ...spec, sp, align: 1 }, field, ABILITIES).speed)) { out.push({ label: `+Spe alignment, SP ≥ ${sp}` }); break; } }
+      for (let sp = spec.sp + 1; sp <= 32; sp++) { const s = compute(entity, { ...spec, sp }, field, ABILITIES).speed; if (beats(s)) { out.push({ label: `SP ≥ ${sp} (${s})` }); break; } }
+      if (spec.align < 1) for (let sp = 0; sp <= 32; sp++) { const s = compute(entity, { ...spec, sp, align: 1 }, field, ABILITIES).speed; if (beats(s)) { out.push({ label: `+Spe alignment, SP ≥ ${sp} (${s})` }); break; } }
       if (spec.item !== 'scarf') { const s = compute(entity, { ...spec, item: 'scarf' }, field, ABILITIES).speed; if (beats(s)) out.push({ label: `Choice Scarf (${s})` }); }
       for (let st = spec.stage + 1; st <= 6; st++) { const s = compute(entity, { ...spec, stage: st }, field, ABILITIES).speed; if (beats(s)) { out.push({ label: `Stage +${st} (${s})` }); break; } }
       if (!tailwindOn(spec, field)) { const s = compute(entity, { ...spec, tailwind: true }, field, ABILITIES).speed; if (beats(s)) out.push({ label: `Tailwind (${s})` }); }
     } else {
-      for (let sp = spec.sp - 1; sp >= 0; sp--) { if (beats(compute(entity, { ...spec, sp }, field, ABILITIES).speed)) { out.push({ label: `SP ≤ ${sp}` }); break; } }
-      if (spec.align > -1) for (let sp = 32; sp >= 0; sp--) { if (beats(compute(entity, { ...spec, sp, align: -1 }, field, ABILITIES).speed)) { out.push({ label: `−Spe alignment, SP ≤ ${sp}` }); break; } }
+      for (let sp = spec.sp - 1; sp >= 0; sp--) { const s = compute(entity, { ...spec, sp }, field, ABILITIES).speed; if (beats(s)) { out.push({ label: `SP ≤ ${sp} (${s})` }); break; } }
+      if (spec.align > -1) for (let sp = 32; sp >= 0; sp--) { const s = compute(entity, { ...spec, sp, align: -1 }, field, ABILITIES).speed; if (beats(s)) { out.push({ label: `−Spe alignment, SP ≤ ${sp} (${s})` }); break; } }
       if (spec.item !== 'ironball') { const s = compute(entity, { ...spec, item: 'ironball' }, field, ABILITIES).speed; if (beats(s)) out.push({ label: `Iron Ball (${s})` }); }
       for (let st = spec.stage - 1; st >= -6; st--) { const s = compute(entity, { ...spec, stage: st }, field, ABILITIES).speed; if (beats(s)) { out.push({ label: `Stage ${st} (${s})` }); break; } }
     }

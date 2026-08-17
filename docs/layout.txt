@@ -1,10 +1,13 @@
 ┌ ⚡ Champions Speed Tiers   WEATHER [None][Sun][Rain][Sand][Snow]  [E-Terrain][Trick Room]  TAILWIND [Side A][Side B]   ◐ Export Import Reset ? ┐
-├ ANCHORS  🐊 Garchomp 234 ✕  [Pin team]   234   SP ▬▬●▬ 20  Alignment +Spe  Stage 0  Item Choice Scarf  Ability auto  Tailwind no  Para no  Prio 0  Side — ┤
-├          at Max: 0 faster · 0 tie · 310 slower   vs Dragapult 213 (Max): outspeeds                                                                       ┤
-├ [Search…]  [+ Add row]  TAGS ● My Team ● Opponent ● Watchlist ● Trick Room ● Scarfer  any  [Manage tags]  ☑ Megas ☐ Only tagged                        ┤
-├ COLUMNS  [👁 Min ⚙][👁 Base ⚙][👁 Max ⚙][👁 Scarf ⚙][◌ +1][◌ −1][👁 Tailwind ⚙][◌ Scarf+TW]  +                                                           ┤
-│ Pokémon              │ Tags    │ Min │ Base │ Max▼ │ Scarf │ Tailwind │ vs Garchomp     ← header sticks below the dock; drag edges to resize             │
-│ Dragapult  DRA GHO   │         │ 145 │ 162  │ 213  │ 319   │ 426      │ slower −21                                                                     │
-│ ───────────────────── ▲ faster than Garchomp (234) — slower ▼ ──────────────────────────────                                                             │
-│ Garchomp  DRA GRO    │ My Team │ …   │      │      │       │          │ ◆ anchor                                                                       │
-└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+├ ANCHORS [Pin team]   TARGETS  🎯 Swampert-Mega · Min · Swift Swim 162 ✕   🎯 Dragapult · Max 213 ✕   clear all                                     ┤
+├ ▌⋮⋮ 🐊 Garchomp  122   SP ▬●▬▬ 0  Alignment neutral  Stage 0  Item —  Ability auto  Tailwind no  Para no  Prio 0  Side —   ▾ ✕                   ┤
+├ ▌   at Max: 240 faster · 1 tie · 69 slower   🎯 Swampert-Mega · Min · Swift Swim 162: ✗ −40 → +Spe alignment, SP ≥ 27 (163) · Choice Scarf (183) ┤
+├ ▌⋮⋮ 🐉 Dragapult 213   SP ▬▬▬● 32 Alignment +Spe  …                                                                                    ▾ ✕      ┤
+├ ▌   at Max: 4 faster · 1 tie · 305 slower    🎯 Swampert-Mega … 162: ✓ beats (+51)   🎯 Dragapult · Max 213: = tie → Choice Scarf (319) · …      ┤
+├ [Search…]  [+ Add row]  TAGS ● My Team ● Opponent ● Watchlist ● Trick Room ● Scarfer  any  [Manage tags]  ☑ Megas ☐ Only tagged                 ┤
+├ COLUMNS  [👁 Min ⚙][👁 Base ⚙][👁 Max ⚙][👁 Scarf ⚙][◌ +1][◌ −1][👁 Tailwind ⚙][◌ Scarf+TW]  +                                                    ┤
+│ Pokémon             │ Tags │ Min │ Base │ Max▼  │ Scarf │ Tailwind │ vs Garchomp    │ vs Dragapult  ← one colored column per anchor             │
+│ Dragapult  DRA GHO  │      │ 145 │ 162  │[🎯213]│ 319   │ 426      │ outspeeds +91  │ ◆ anchor                                                  │
+│ ─────────────────── ▲ faster than Dragapult (213) — slower ▼ ───────────────────────────────── (divider in that anchor's color)               │
+│ Swampert-Mega       │      │[🎯81]│ …   │       │       │          │ slower −41     │ slower −132                                               │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘

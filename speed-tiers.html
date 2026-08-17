@@ -84,16 +84,25 @@ tbody tr.divider td{background:var(--anchor);color:#fff;text-align:center;font-w
 .rowactions button{visibility:hidden}
 tr:hover .rowactions button{visibility:visible}
 /* dock */
-#dock{background:var(--anchorbg);border-bottom:2px solid var(--anchor);padding:6px 14px;display:flex;gap:12px 16px;flex-wrap:wrap;align-items:center}
+#dock{background:var(--anchorbg);border-bottom:2px solid var(--anchor);padding:4px 14px 6px;display:flex;flex-direction:column;gap:4px;max-height:52vh;overflow:auto}
+.dockhead{display:flex;gap:8px 14px;flex-wrap:wrap;align-items:center;font-size:12px}
+.acard{border:1px solid var(--line);border-left:5px solid var(--anchor);border-radius:8px;background:var(--bg2);padding:4px 10px;display:flex;flex-direction:column;gap:2px}
+.acard.dragover{outline:2px dashed var(--acc)}
+.ahead{display:flex;gap:8px 14px;flex-wrap:wrap;align-items:center}
+.grip{cursor:grab;color:var(--fg2);user-select:none;letter-spacing:-2px}
+.aname{font-weight:600}
+.tline{display:flex;gap:6px 16px;flex-wrap:wrap;font-size:12px;color:var(--fg2);align-items:center}
+.tline .tst{white-space:nowrap}
+.tline .tst b{color:var(--fg)}
+.hov{font-size:12px;color:var(--fg2);min-height:0}
+.tchip{display:inline-flex;align-items:center;gap:4px;border:1px dashed var(--tie);border-radius:6px;padding:1px 6px;cursor:pointer;background:var(--bg2);font-size:12px}
+.tchip .x{opacity:.6}.tchip .x:hover{opacity:1;color:var(--slower)}
+td.cell.target{outline:2px solid var(--tie);outline-offset:-2px;border-radius:4px}
+td.cell .tg{font-size:10px;margin-right:2px}
+tbody tr.anchorrow td:first-child{box-shadow:inset 4px 0 0 var(--arow,var(--anchor))}
+tbody tr.divider td{background:var(--dcol,var(--anchor))}
 #dock .chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;max-width:100%}
-.achip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:8px;padding:3px 8px;cursor:pointer;background:var(--bg3)}
-.achip.on{border-color:var(--anchor);background:var(--anchorbg)}
-.achip .spr{width:24px;height:24px;margin:0}
-.achip b{font-size:15px}
-.achip .x{opacity:.6;margin-left:2px}
-.achip .x:hover{opacity:1;color:var(--slower)}
-#dockEd{display:flex;gap:10px 18px;flex-wrap:wrap;align-items:center;flex:1}
-#dockEd .big{font-size:24px;font-weight:700;color:var(--anchor);min-width:56px}
+.big{font-size:22px;font-weight:700;color:var(--anchor);min-width:52px}
 .ctl{display:flex;flex-direction:column;gap:2px;font-size:11px;color:var(--fg2)}
 .ctl > *{font-size:13px;color:var(--fg)}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
@@ -230,14 +239,14 @@ const Engine = (() => {
     const cur = compute(entity, spec, field, ABILITIES).speed;
     if (beats(cur)) return [{ label: 'already outspeeds', ok: true }];
     if (!trickRoom) {
-      for (let sp = spec.sp + 1; sp <= 32; sp++) { if (beats(compute(entity, { ...spec, sp }, field, ABILITIES).speed)) { out.push({ label: `SP ≥ ${sp}` }); break; } }
-      if (spec.align < 1) for (let sp = 0; sp <= 32; sp++) { if (beats(compute(entity, { ...spec, sp, align: 1 }, field, ABILITIES).speed)) { out.push({ label: `+Spe alignment, SP ≥ ${sp}` }); break; } }
+      for (let sp = spec.sp + 1; sp <= 32; sp++) { const s = compute(entity, { ...spec, sp }, field, ABILITIES).speed; if (beats(s)) { out.push({ label: `SP ≥ ${sp} (${s})` }); break; } }
+      if (spec.align < 1) for (let sp = 0; sp <= 32; sp++) { const s = compute(entity, { ...spec, sp, align: 1 }, field, ABILITIES).speed; if (beats(s)) { out.push({ label: `+Spe alignment, SP ≥ ${sp} (${s})` }); break; } }
       if (spec.item !== 'scarf') { const s = compute(entity, { ...spec, item: 'scarf' }, field, ABILITIES).speed; if (beats(s)) out.push({ label: `Choice Scarf (${s})` }); }
       for (let st = spec.stage + 1; st <= 6; st++) { const s = compute(entity, { ...spec, stage: st }, field, ABILITIES).speed; if (beats(s)) { out.push({ label: `Stage +${st} (${s})` }); break; } }
       if (!tailwindOn(spec, field)) { const s = compute(entity, { ...spec, tailwind: true }, field, ABILITIES).speed; if (beats(s)) out.push({ label: `Tailwind (${s})` }); }
     } else {
-      for (let sp = spec.sp - 1; sp >= 0; sp--) { if (beats(compute(entity, { ...spec, sp }, field, ABILITIES).speed)) { out.push({ label: `SP ≤ ${sp}` }); break; } }
-      if (spec.align > -1) for (let sp = 32; sp >= 0; sp--) { if (beats(compute(entity, { ...spec, sp, align: -1 }, field, ABILITIES).speed)) { out.push({ label: `−Spe alignment, SP ≤ ${sp}` }); break; } }
+      for (let sp = spec.sp - 1; sp >= 0; sp--) { const s = compute(entity, { ...spec, sp }, field, ABILITIES).speed; if (beats(s)) { out.push({ label: `SP ≤ ${sp} (${s})` }); break; } }
+      if (spec.align > -1) for (let sp = 32; sp >= 0; sp--) { const s = compute(entity, { ...spec, sp, align: -1 }, field, ABILITIES).speed; if (beats(s)) { out.push({ label: `−Spe alignment, SP ≤ ${sp} (${s})` }); break; } }
       if (spec.item !== 'ironball') { const s = compute(entity, { ...spec, item: 'ironball' }, field, ABILITIES).speed; if (beats(s)) out.push({ label: `Iron Ball (${s})` }); }
       for (let st = spec.stage - 1; st >= -6; st--) { const s = compute(entity, { ...spec, stage: st }, field, ABILITIES).speed; if (beats(s)) { out.push({ label: `Stage ${st} (${s})` }); break; } }
     }
@@ -255,6 +264,7 @@ const DATA = JSON.parse(document.getElementById('data').textContent);
 const ENT = Object.fromEntries(DATA.entities.map(e => [e.id, e]));
 const AB = DATA.abilities;
 const LS = 'speedtiers.v1';
+const ANCHOR_COLORS = ['#a78bfa', '#34d399', '#f59e0b', '#38bdf8', '#f472b6', '#facc15', '#fb923c', '#4ade80'];
 const uid = () => Math.random().toString(36).slice(2, 9);
 const TYPE_COLORS = {normal:'#9a9a7a',fire:'#e8582d',water:'#3d8de5',electric:'#e5b800',grass:'#57b23a',ice:'#6cc9d6',fighting:'#c22e28',poison:'#a33ea1',ground:'#d9b356',flying:'#8fa1e6',psychic:'#f95587',bug:'#8fae2b',rock:'#b6a136',ghost:'#735797',dragon:'#6f35fc',dark:'#705746',steel:'#7f8fa3',fairy:'#d685ad'};
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -286,7 +296,7 @@ function defaultState() {
     v: 1, field: { weather: null, eterrain: false, trickRoom: false, tailwind: { A: false, B: false } },
     global: {}, columns: defaultColumns(), sortCol: 'max', tags: defaultTags(),
     rows: DATA.entities.map(e => ({ id: uid(), ent: e.id, tags: [], ov: {} })),
-    anchors: [], activeAnchor: null,
+    anchors: [], targets: [],
     filters: { tags: [], mode: 'any', search: '', onlyTagged: false, megas: true },
     theme: 'auto', colWidths: {},
   };
@@ -294,7 +304,7 @@ function defaultState() {
 let S = load();
 function load() {
   try { const s = JSON.parse(localStorage.getItem(LS)); if (s && s.v === 1) { // drop rows for entities that no longer exist
-      s.rows = s.rows.filter(r => ENT[r.ent]); s.anchors = s.anchors.filter(a => s.rows.some(r => r.id === a.rowId)); s.colWidths = s.colWidths || {}; return s; } } catch (e) {}
+      s.rows = s.rows.filter(r => ENT[r.ent]); s.anchors = s.anchors.filter(a => s.rows.some(r => r.id === a.rowId)); s.colWidths = s.colWidths || {}; s.targets = (s.targets || []).filter(t => ENT[t.ent]); s.anchors.forEach((a, i) => { a.color = a.color || ANCHOR_COLORS[i % ANCHOR_COLORS.length]; }); return s; } } catch (e) {}
   return defaultState();
 }
 let saveT; function save() { clearTimeout(saveT); saveT = setTimeout(() => localStorage.setItem(LS, JSON.stringify(S)), 150); }
@@ -313,7 +323,18 @@ function calc(row, col) { return Engine.compute(ENT[row.ent], specFor(row, col),
 const sortColumn = () => S.columns.find(c => c.id === S.sortCol) || S.columns.find(c => c.visible) || S.columns[0];
 function anchorSpecInit(row) { return Engine.merge(S.global, sortColumn().spec, ...row.tags.map(id => tagById(id)?.defaults), row.ov); }
 function anchorCalc(a) { const row = S.rows.find(r => r.id === a.rowId); return row ? Engine.compute(ENT[row.ent], Engine.merge(a.spec), S.field, AB) : null; }
-const activeAnchor = () => S.anchors.find(a => a.id === S.activeAnchor) || null;
+function nextColor() { const used = new Set(S.anchors.map(a => a.color)); return ANCHOR_COLORS.find(c => !used.has(c)) || ANCHOR_COLORS[S.anchors.length % ANCHOR_COLORS.length]; }
+function anchorList() { return S.anchors.map(a => ({ a, c: anchorCalc(a), row: S.rows.find(r => r.id === a.rowId) })).filter(x => x.c); }
+function targetCalc(t) { return Engine.compute(ENT[t.ent], Engine.merge(t.spec), S.field, AB); }
+const targetAt = (rowId, colId) => S.targets.find(t => t.rowId === rowId && t.colId === colId);
+/** Snapshot a cell as a target: resolve field-dependent bits (ability/tailwind) into the spec so the value is stable. */
+function makeTarget(row, col) {
+  const e = ENT[row.ent]; const sp = specFor(row, col); const ab = Engine.activeAbility(e, sp, S.field, AB); const tw = Engine.tailwindOn(sp, S.field);
+  const spec = { ...sp, abil: ab ? 'on' : 'off', tailwind: tw, side: null };
+  const notes = []; if (ab) notes.push(AB[ab.slug].name); if (tw) notes.push('Tailwind');
+  return { id: uid(), ent: row.ent, rowId: row.id, colId: col.id, label: `${e.name} · ${col.label}${notes.length ? ' · ' + notes.join('/') : ''}`, spec };
+}
+function toggleTarget(rowId, colId) { const t = targetAt(rowId, colId); if (t) S.targets = S.targets.filter(x => x.id !== t.id); else { const row = S.rows.find(r => r.id === rowId), col = S.columns.find(c => c.id === colId); if (row && col) S.targets.push(makeTarget(row, col)); } commit(); }
 
 // ---------- render ----------
 const $ = id => document.getElementById(id);
@@ -356,51 +377,68 @@ function visibleRows() {
 }
 function renderTable() {
   const cols = S.columns.filter(c => c.visible); const sc = sortColumn(); const tr = S.field.trickRoom;
-  const anc = activeAnchor(); const ancC = anc ? anchorCalc(anc) : null;
+  const ancs = anchorList();
   const rows = visibleRows().map(r => { const cells = {}; for (const c of cols) cells[c.id] = calc(r, c); const key = cells[sc.id] || calc(r, sc); return { r, cells, key }; });
   rows.sort((a, b) => Engine.comparator(tr)(a.key, b.key) || ENT[a.r.ent].name.localeCompare(ENT[b.r.ent].name));
   const cmp = Engine.comparator(tr);
   const W = k => S.colWidths[k] ? ` style="width:${S.colWidths[k]}px;min-width:${S.colWidths[k]}px;max-width:${S.colWidths[k]}px"` : '';
   const RZ = k => `<span class="rz" data-rz="${k}" title="Drag to resize · double-click to auto-fit"></span>`;
-  let h = `<tr><th class="l" data-key="name"${W('name')}>Pokémon${RZ('name')}</th><th class="l" data-key="tags"${W('tags')}>Tags${RZ('tags')}</th>` + cols.map(c => `<th data-sort="${c.id}" data-key="${c.id}"${W(c.id)} class="${c.id === sc.id ? 'sort' : ''}" title="${esc(specSummary(c.spec))}">${esc(c.label)}${RZ(c.id)}</th>`).join('') +
-    `<th data-key="vs"${W('vs')} title="Relative to active anchor at the sort column">vs ${anc ? esc(ENT[S.rows.find(x => x.id === anc.rowId).ent].name) : 'anchor'}${RZ('vs')}</th><th></th></tr>`;
+  const NC = cols.length + ancs.length + 3;
+  let h = `<tr><th class="l" data-key="name"${W('name')}>Pokémon${RZ('name')}</th><th class="l" data-key="tags"${W('tags')}>Tags${RZ('tags')}</th>` + cols.map(c => `<th data-sort="${c.id}" data-key="${c.id}"${W(c.id)} class="${c.id === sc.id ? 'sort' : ''}" title="${esc(specSummary(c.spec))} — click a cell to mark it as a target">${esc(c.label)}${RZ(c.id)}</th>`).join('') +
+    ancs.map(({ a, row }) => `<th data-key="vs_${a.id}"${W('vs_' + a.id)} style="color:${a.color}" title="Relative to this anchor at the sort column">vs ${esc(ENT[row.ent].name)}${RZ('vs_' + a.id)}</th>`).join('') + (ancs.length ? '' : `<th data-key="vs" class="muted" title="Pin an anchor (◆) to compare">vs anchor</th>`) + `<th></th></tr>`;
   $('tbl').tHead.innerHTML = h;
-  let out = [], band = false, lastSpeed = null, lastP = null, dividerDone = !ancC;
+  let out = [], band = false, lastSpeed = null, lastP = null; const pending = [...ancs];
   for (const { r, cells, key } of rows) {
-    if (!dividerDone && cmp(ancC, key) < 0) { out.push(dividerRow(anc, ancC, cols.length)); dividerDone = true; }
+    for (let i = pending.length - 1; i >= 0; i--) if (cmp(pending[i].c, key) < 0) { out.push(dividerRow(pending[i], NC)); pending.splice(i, 1); }
     if (key.speed !== lastSpeed || key.priority !== lastP) { band = !band; lastSpeed = key.speed; lastP = key.priority; }
-    const e = ENT[r.ent]; const isAnchor = anc && anc.rowId === r.id;
-    let rel = ''; if (ancC && !isAnchor) { const rl = Engine.relation(key, ancC, tr); const d = key.speed - ancC.speed; rel = `<span class="badge ${rl}">${rl === 'tie' ? 'speed tie' : rl === 'faster' ? 'outspeeds' : 'slower'} ${d > 0 ? '+' + d : d}</span>`; }
-    else if (isAnchor) rel = `<span class="badge self">◆ anchor</span>`;
-    out.push(`<tr class="${band ? 'band' : ''} ${isAnchor ? 'anchorrow' : ''}" data-row="${r.id}"><td class="l ${S.colWidths.name ? 'clip' : ''}"${S.colWidths.name ? ` style="max-width:${S.colWidths.name}px"` : ''}>${sprite(e)}<span class="name" data-act="edit">${esc(e.name)}</span>${e.mega ? '<span class="mega">MEGA</span>' : ''}${e.types.map(t => `<span class="type" style="background:${TYPE_COLORS[t] || '#888'}">${t.slice(0, 3)}</span>`).join('')}${e.abil.length ? `<span class="muted" style="font-size:10px;margin-left:4px" title="Speed ability">${e.abil.map(a => AB[a].name).join('/')}</span>` : ''}</td>` +
+    const e = ENT[r.ent]; const own = ancs.find(x => x.a.rowId === r.id);
+    const badges = ancs.map(({ a, c }) => { if (a.rowId === r.id) return `<td><span class="badge self" style="color:${a.color}">◆ anchor</span></td>`; const rl = Engine.relation(key, c, tr); const d = key.speed - c.speed; return `<td><span class="badge ${rl}">${rl === 'tie' ? 'speed tie' : rl === 'faster' ? 'outspeeds' : 'slower'} ${d > 0 ? '+' + d : d}</span></td>`; }).join('') + (ancs.length ? '' : '<td></td>');
+    out.push(`<tr class="${band ? 'band' : ''} ${own ? 'anchorrow' : ''}" data-row="${r.id}"${own ? ` style="--arow:${own.a.color}"` : ''}><td class="l ${S.colWidths.name ? 'clip' : ''}"${S.colWidths.name ? ` style="max-width:${S.colWidths.name}px"` : ''}>${sprite(e)}<span class="name" data-act="edit">${esc(e.name)}</span>${e.mega ? '<span class="mega">MEGA</span>' : ''}${e.types.map(t => `<span class="type" style="background:${TYPE_COLORS[t] || '#888'}">${t.slice(0, 3)}</span>`).join('')}${e.abil.length ? `<span class="muted" style="font-size:10px;margin-left:4px" title="Speed ability">${e.abil.map(a => AB[a].name).join('/')}</span>` : ''}</td>` +
       `<td class="l ${S.colWidths.tags ? 'clip' : ''}"${S.colWidths.tags ? ` style="max-width:${S.colWidths.tags}px"` : ''}>${r.tags.map(id => { const t = tagById(id); return t ? `<span class="tagchip mini" style="border-color:${t.color}"><span class="dot" style="background:${t.color}"></span>${esc(t.name)}</span>` : ''; }).join(' ')}${Object.keys(r.ov).length ? `<span class="tagchip mini" style="border-color:var(--anchor)" title="${esc(specSummary(r.ov))}">custom</span>` : ''}</td>` +
-      cols.map(c => { const v = cells[c.id]; const ok = overriddenKeys(r, c); return `<td class="cell ${c.id === sc.id ? 'sortcol' : ''}" data-col="${c.id}" title="${esc(v.steps.map(s => `${s.label} → ${s.value}`).join('\n'))}${ok.length ? '\n(overridden: ' + ok.join(', ') + ')' : ''}">${v.priority ? `<span class="muted" style="font-size:10px">p${v.priority > 0 ? '+' : ''}${v.priority} </span>` : ''}${v.speed}${ok.length ? '<span class="ov">●</span>' : ''}</td>`; }).join('') +
-      `<td>${rel}</td><td class="rowactions"><button class="sm ghost" data-act="pin" title="Pin as anchor">◆</button><button class="sm ghost" data-act="dup" title="Duplicate row">⧉</button><button class="sm ghost" data-act="del" title="Remove row">✕</button></td></tr>`);
+      cols.map(c => { const v = cells[c.id]; const ok = overriddenKeys(r, c); const tg = targetAt(r.id, c.id); return `<td class="cell ${c.id === sc.id ? 'sortcol' : ''} ${tg ? 'target' : ''}" data-col="${c.id}" title="${esc(v.steps.map(s => `${s.label} → ${s.value}`).join('\n'))}${ok.length ? '\n(overridden: ' + ok.join(', ') + ')' : ''}\n${tg ? 'click to remove target' : 'click to mark as target'}">${tg ? '<span class="tg">🎯</span>' : ''}${v.priority ? `<span class="muted" style="font-size:10px">p${v.priority > 0 ? '+' : ''}${v.priority} </span>` : ''}${v.speed}${ok.length ? '<span class="ov">●</span>' : ''}</td>`; }).join('') +
+      badges + `<td class="rowactions"><button class="sm ghost" data-act="pin" title="Pin as anchor">◆</button><button class="sm ghost" data-act="dup" title="Duplicate row">⧉</button><button class="sm ghost" data-act="del" title="Remove row">✕</button></td></tr>`);
   }
-  if (!dividerDone) out.push(dividerRow(anc, ancC, cols.length));
-  $('tbl').tBodies[0].innerHTML = out.join('') || `<tr><td colspan="${cols.length + 4}" class="muted">No rows match. Add rows with “+ Add row” or clear filters.</td></tr>`;
+  for (const x of pending) out.push(dividerRow(x, NC));
+  $('tbl').tBodies[0].innerHTML = out.join('') || `<tr><td colspan="${NC}" class="muted">No rows match. Add rows with “+ Add row” or clear filters.</td></tr>`;
 }
-function dividerRow(anc, c, ncols) { const e = ENT[S.rows.find(x => x.id === anc.rowId).ent]; return `<tr class="divider"><td colspan="${ncols + 4}">▲ faster than ${esc(e.name)} (${c.speed}${c.priority ? ', p' + c.priority : ''}) — slower ▼</td></tr>`; }
+function dividerRow({ a, c, row }, ncols) { const e = ENT[row.ent]; return `<tr class="divider" style="--dcol:${a.color}"><td colspan="${ncols}">▲ faster than ${esc(e.name)} (${c.speed}${c.priority ? ', p' + c.priority : ''}) — slower ▼</td></tr>`; }
 function sprite(e, cls = 'spr') { return e.sprite >= 0 ? `<img class="${cls}" src="${DATA.sprites[e.sprite]}" alt="" loading="lazy">` : `<span class="${cls}" style="display:inline-block"></span>`; }
 
 // ---------- dock ----------
 let hoverRowId = null;
 function renderDock() {
-  const anc = activeAnchor();
-  let h = `<div class="chips"><span class="lbl muted" style="font-size:11px">ANCHORS</span>` + S.anchors.map(a => { const row = S.rows.find(r => r.id === a.rowId); const e = ENT[row.ent]; const c = anchorCalc(a); return `<span class="achip ${a.id === S.activeAnchor ? 'on' : ''}" data-anchor="${a.id}">${sprite(e)}<span>${esc(e.name)}</span><b>${c.speed}</b><span class="x" data-act="unpin" title="Unpin">✕</span></span>`; }).join('') +
-    `<button class="sm" id="btnPinTeam" title="Pin every row tagged My Team">Pin team</button></div>`;
-  if (anc) {
-    const row = S.rows.find(r => r.id === anc.rowId); const e = ENT[row.ent]; const c = anchorCalc(anc); const sp = Engine.merge(anc.spec);
-    h += `<div id="dockEd" data-anchor="${anc.id}">
-      <div class="big" title="${esc(c.steps.map(s => `${s.label} → ${s.value}`).join('\n'))}">${c.speed}</div>
-      ${specControls(sp, false, e)}
-      <div class="dockline"><span class="summ" id="summ"></span><div id="solve"></div></div></div>`;
-  } else h += `<div class="muted" style="align-self:center">Pin a Pokémon (◆ on a row, or click a name → “Pin as anchor”) to compare everything against it. Hover a row to see what the anchor would need to outspeed it.</div>`;
-  $('dock').innerHTML = h; renderSolve(); renderSummary(); syncTop();
+  const ancs = anchorList();
+  let h = `<div class="dockhead"><span class="lbl muted">ANCHORS</span><button class="sm" id="btnPinTeam" title="Pin every row tagged My Team">Pin team</button>` +
+    `<span class="lbl muted" style="margin-left:10px">TARGETS</span>` + (S.targets.length ? S.targets.map(t => { const c = targetCalc(t); return `<span class="tchip" data-target="${t.id}" title="Click to edit · ${esc(specSummary(t.spec))}">🎯 ${esc(t.label)} <b>${c.speed}</b>${c.priority ? `<span class="muted">p${c.priority > 0 ? '+' : ''}${c.priority}</span>` : ''}<span class="x" data-act="untarget" title="Remove target">✕</span></span>`; }).join('') : `<span class="muted">click any speed cell in the table to mark it as a value to beat</span>`) +
+    (S.targets.length > 1 ? `<button class="sm ghost" id="btnClearTargets">clear all</button>` : '') + `</div>`;
+  if (!ancs.length) h += `<div class="muted" style="font-size:12px">Pin a Pokémon (◆ on a row, or click a name → “Pin as anchor”) to compare everything against it. Each anchor gets its own card here and its own comparison column in the table; drag cards to reorder.</div>`;
+  for (const { a, c, row } of ancs) {
+    const e = ENT[row.ent]; const sp = Engine.merge(a.spec);
+    h += `<div class="acard" draggable="true" data-anchor="${a.id}" style="border-left-color:${a.color}">
+      <div class="ahead"><span class="grip" title="Drag to reorder">⋮⋮</span>${sprite(e)}<span class="aname">${esc(e.name)}</span><b class="big" style="color:${a.color}" title="${esc(c.steps.map(s => `${s.label} → ${s.value}`).join('\n'))}">${c.speed}</b>
+        ${a.collapsed ? `<span class="muted" style="font-size:12px">${esc(specSummary(a.spec))}</span>` : specControls(sp, false, e)}
+        <button class="sm ghost" data-act="collapse" title="${a.collapsed ? 'Expand controls' : 'Collapse controls'}">${a.collapsed ? '▸ edit' : '▾'}</button>
+        <span class="x" data-act="unpin" title="Unpin" style="cursor:pointer;opacity:.7">✕</span></div>
+      <div class="tline" data-tline></div><div class="hov" data-hov></div></div>`;
+  }
+  $('dock').innerHTML = h; renderStatuses(); renderSolve(); syncTop();
 }
-function renderSummary() { const el = $('summ'); const anc = activeAnchor(); if (!el || !anc) return; const c = anchorCalc(anc); const sc = sortColumn(); let f = 0, t = 0, sl = 0;
-  for (const r of visibleRows()) { if (r.id === anc.rowId) continue; const rl = Engine.relation(calc(r, sc), c, S.field.trickRoom); if (rl === 'faster') f++; else if (rl === 'tie') t++; else sl++; }
-  el.innerHTML = `at <b>${esc(sc.label)}</b>: <b style="color:var(--slower)">${f}</b> faster · <b style="color:var(--tie)">${t}</b> tie · <b style="color:var(--faster)">${sl}</b> slower`; }
+/** Per-anchor line: summary counts + status vs every target (with the minimal fix to beat it by 1). */
+function renderStatuses() {
+  const sc = sortColumn(); const tr = S.field.trickRoom;
+  for (const { a, c, row } of anchorList()) {
+    const el = $('dock').querySelector(`.acard[data-anchor="${a.id}"] [data-tline]`); if (!el) continue; const e = ENT[row.ent];
+    let f = 0, t = 0, sl = 0; for (const r of visibleRows()) { if (r.id === a.rowId) continue; const rl = Engine.relation(calc(r, sc), c, tr); if (rl === 'faster') f++; else if (rl === 'tie') t++; else sl++; }
+    let h = `<span class="tst">at ${esc(sc.label)}: <b style="color:var(--slower)">${f}</b> faster · <b style="color:var(--tie)">${t}</b> tie · <b style="color:var(--faster)">${sl}</b> slower</span>`;
+    for (const tg of S.targets) {
+      const tc = targetCalc(tg); const rl = Engine.relation(c, tc, tr); const d = c.speed - tc.speed;
+      let st = rl === 'faster' ? `<b style="color:var(--faster)">✓ beats</b> (${d > 0 ? '+' + d : d})` : rl === 'tie' ? `<b style="color:var(--tie)">= tie</b>` : `<b style="color:var(--slower)">✗ ${d}</b>`;
+      if (rl !== 'faster') { const sol = Engine.solve(e, Engine.merge(a.spec), S.field, AB, tc.speed, tr); st += ` → ${sol.map(x => `<b>${esc(x.label)}</b>`).join(' · ')}`; }
+      h += `<span class="tst">🎯 ${esc(tg.label)} ${tc.speed}: ${st}</span>`;
+    }
+    el.innerHTML = h;
+  }
+}
 function syncTop() { const h = $('top').offsetHeight; document.documentElement.style.setProperty('--topH', h + 'px'); }
 new ResizeObserver(syncTop).observe(document.getElementById('top'));
 function specControls(sp, partial, e) { // partial=true adds "inherit" options; returns HTML with data-k controls
@@ -426,13 +464,25 @@ function readControl(el) { // returns [key, value|undefined(inherit)]
   return [k, v];
 }
 function renderSolve() {
-  const el = $('solve'); if (!el) return; const anc = activeAnchor(); if (!anc) return;
-  const row = S.rows.find(r => r.id === anc.rowId); const e = ENT[row.ent]; const c = anchorCalc(anc);
-  const trow = hoverRowId && S.rows.find(r => r.id === hoverRowId);
-  if (!trow || trow.id === anc.rowId) { el.innerHTML = `<span class="muted">Hover a row → what ${esc(e.name)} needs to outspeed it (at the sort column). ${c.ability ? `Ability active: <b>${esc(AB[c.ability.slug].name)}</b>.` : ''}</span>`; return; }
-  const tc = calc(trow, sortColumn()); const te = ENT[trow.ent]; const rl = Engine.relation(c, tc, S.field.trickRoom);
-  const sol = Engine.solve(e, Engine.merge(anc.spec), S.field, AB, tc.speed, S.field.trickRoom);
-  el.innerHTML = `vs <b>${esc(te.name)}</b> ${tc.speed} (${esc(sortColumn().label)}): <b class="${rl}" style="color:var(--${rl})">${rl === 'faster' ? 'outspeeds' : rl === 'tie' ? 'speed tie' : 'slower'}</b>` + (rl === 'faster' ? '' : ` · to outspeed: ${sol.map(s => `<b>${esc(s.label)}</b>`).join(' · ')}`);
+  const trow = hoverRowId && S.rows.find(r => r.id === hoverRowId); const sc = sortColumn(); const tr = S.field.trickRoom;
+  for (const { a, c, row } of anchorList()) {
+    const el = $('dock').querySelector(`.acard[data-anchor="${a.id}"] [data-hov]`); if (!el) continue; const e = ENT[row.ent];
+    if (!trow || trow.id === a.rowId) { el.innerHTML = ''; continue; }
+    const tc = calc(trow, sc); const te = ENT[trow.ent]; const rl = Engine.relation(c, tc, tr);
+    const sol = rl === 'faster' ? [] : Engine.solve(e, Engine.merge(a.spec), S.field, AB, tc.speed, tr);
+    el.innerHTML = `hover — vs <b>${esc(te.name)}</b> ${tc.speed} (${esc(sc.label)}): <b style="color:var(--${rl})">${rl === 'faster' ? 'outspeeds' : rl === 'tie' ? 'speed tie' : 'slower'}</b>` + (sol.length ? ` → ${sol.map(s => `<b>${esc(s.label)}</b>`).join(' · ')}` : '');
+  }
+}
+function targetEditor(tid) {
+  const t = S.targets.find(x => x.id === tid); if (!t) return; const e = ENT[t.ent];
+  modal(`<h2><span>🎯 Target: ${sprite(e)}${esc(e.name)}</span><button class="sm" data-close>✕</button></h2>
+    <div class="frow"><label class="ctl">Label <input type="text" id="tLabel" value="${esc(t.label)}" style="width:320px"></label><span class="big" id="tBig">${targetCalc(t).speed}</span></div>
+    <div class="frow" id="tCtl">${specControls(Engine.merge(t.spec), false, e)}</div>
+    <div class="muted" style="font-size:12px">Targets are snapshots: the ability/Tailwind state was resolved when you clicked the cell, so this value does not change with the field bar. Edit it here if you want a different assumption.</div>
+    <div class="frow" style="margin-top:12px"><button class="on" data-close>Done</button><button class="danger" id="tDel">Remove target</button></div>`,
+    m => { wireSpRange(m); m.querySelector('#tLabel').oninput = ev => { t.label = ev.target.value; save(); };
+      m.querySelector('#tCtl').addEventListener('input', () => { const o = partialFromControls(m.querySelector('#tCtl')); t.spec = { ...Engine.merge(t.spec), ...o }; save(); m.querySelector('#tBig').textContent = targetCalc(t).speed; renderDock(); renderTable(); });
+      m.querySelector('#tDel').onclick = () => { S.targets = S.targets.filter(x => x.id !== t.id); closeModal(); commit(); }; });
 }
 
 // ---------- modals ----------
@@ -512,16 +562,17 @@ function helpModal() {
   <p><b>Formula (Champions, Level 50, perfect IVs):</b> Speed = ⌊(Base + 20 + SP) × Alignment⌋, SP 0–32 (≤66 total across stats), Alignment ×1.1 (Hasty/Jolly/Naive/Timid), ×1.0, or ×0.9. Then stage → ability → item → Tailwind → paralysis, flooring after each step. Trick Room reverses order within a priority bracket.</p>
   <p><b>Columns</b> are preset “what-if” specs (Min, Base, Max, Scarf…). Click a header or chip to make it the <b>sort column</b>; the anchor comparison uses that column. Add your own (e.g. Max in Rain = ability active).</p>
   <p><b>Tags</b> describe rows (your team, opponents, scarfers…) and can carry defaults. <b>Overrides</b> on a single row are facts about that specific set. Precedence: global → column → tags (in order) → row override. A <span style="color:var(--anchor)">●</span> marks cells where a tag/override changed the column’s own preset.</p>
-  <p><b>Anchor</b>: pin any row (◆). The dock stays visible while you scroll; edit the anchor's set live, and every row shows outspeeds/tie/slower with the delta; a divider marks where the anchor sits. Hover a row to see what the anchor would need to beat it. Pin up to your whole team and switch between them.</p>
+  <p><b>Anchors</b>: pin any rows (◆). Each anchor gets a stacked card in the dock (drag ⋮⋮ to reorder, ▾ to collapse), its own colored <i>vs</i> column in the table, and a colored divider showing where it sits. Edit an anchor's set live. Hover a row to see what each anchor needs to beat it.</p>
+  <p><b>Targets</b>: click any speed cell (e.g. Swampert-Mega × Min while Rain is on) to mark it 🎯 as a value to beat. The cell's ability/Tailwind state is snapshotted so the target does not move when you change the field bar; click the chip to edit or relabel it. Every anchor card then shows ✓/✗ against every target and the minimal change (SP, +Spe alignment, Scarf, stage, Tailwind) that beats it by at least 1 point.</p>
   <p><b>Field bar</b>: weather / Electric Terrain auto-activate speed abilities (Swift Swim, Chlorophyll, Sand Rush, Slush Rush, Surge Surfer) for rows whose ability mode is “auto”. Tailwind Side A/B applies to rows whose tag/override sets that side (My Team = A, Opponent = B).</p>
   <p><b>Columns widths</b> default to fit their content (nothing wraps or gets cut off). Drag a header's right edge to resize; double-click the edge to auto-fit again. Widths are saved.</p>
   <p>Everything is saved in this browser (localStorage). Use Export/Import to back up or share. <kbd>/</kbd> focuses search.</p>`);
 }
 
 // ---------- actions ----------
-function pin(rowId) { let a = S.anchors.find(x => x.rowId === rowId); if (!a) { const row = S.rows.find(r => r.id === rowId); a = { id: uid(), rowId, spec: anchorSpecInit(row) }; S.anchors.push(a); } S.activeAnchor = a.id; commit(); }
+function pin(rowId) { let a = S.anchors.find(x => x.rowId === rowId); if (!a) { const row = S.rows.find(r => r.id === rowId); a = { id: uid(), rowId, spec: anchorSpecInit(row), color: nextColor(), collapsed: false }; S.anchors.push(a); } commit(); }
 function dupRow(rowId) { const i = S.rows.findIndex(r => r.id === rowId); const r = S.rows[i]; S.rows.splice(i + 1, 0, { id: uid(), ent: r.ent, tags: [...r.tags], ov: { ...r.ov } }); commit(); }
-function delRow(rowId) { S.rows = S.rows.filter(r => r.id !== rowId); S.anchors = S.anchors.filter(a => a.rowId !== rowId); if (!S.anchors.some(a => a.id === S.activeAnchor)) S.activeAnchor = S.anchors[0]?.id || null; commit(); }
+function delRow(rowId) { S.rows = S.rows.filter(r => r.id !== rowId); S.anchors = S.anchors.filter(a => a.rowId !== rowId); S.targets.forEach(t => { if (t.rowId === rowId) t.rowId = null; }); commit(); }
 function exportJSON() { const blob = new Blob([JSON.stringify(S, null, 1)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `speed-tiers-${new Date().toISOString().slice(0, 10)}.json`; a.click(); URL.revokeObjectURL(a.href); }
 function importJSON() { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'application/json,.json'; inp.onchange = () => { const f = inp.files[0]; if (!f) return; f.text().then(t => { try { const s = JSON.parse(t); if (s.v !== 1 || !s.rows) throw 0; s.rows = s.rows.filter(r => ENT[r.ent]); S = s; commit(); } catch (e) { alert('Not a valid speed-tiers export.'); } }); }; inp.click(); }
 
@@ -558,24 +609,33 @@ $('tbl').addEventListener('click', ev => {
   if (ev.target.closest('.rz')) return;
   const th = ev.target.closest('th[data-sort]'); if (th) { S.sortCol = th.dataset.sort; commit(); return; }
   const tr = ev.target.closest('tr[data-row]'); if (!tr) return; const id = tr.dataset.row; const act = ev.target.dataset.act;
+  const cell = ev.target.closest('td.cell'); if (cell) { toggleTarget(id, cell.dataset.col); return; }
   if (act === 'pin') pin(id); else if (act === 'dup') dupRow(id); else if (act === 'del') delRow(id); else if (act === 'edit' || ev.target.closest('td.l')) rowEditor(id);
 });
 $('tbl').addEventListener('mouseover', ev => { const tr = ev.target.closest('tr[data-row]'); const id = tr ? tr.dataset.row : null; if (id !== hoverRowId) { hoverRowId = id; renderSolve(); } });
 $('tbl').addEventListener('mouseleave', () => { hoverRowId = null; renderSolve(); });
 $('dock').addEventListener('click', ev => {
-  if (ev.target.id === 'btnPinTeam') { S.rows.filter(r => r.tags.includes('team')).forEach(r => { if (!S.anchors.some(a => a.rowId === r.id)) S.anchors.push({ id: uid(), rowId: r.id, spec: anchorSpecInit(r) }); }); if (!S.activeAnchor && S.anchors[0]) S.activeAnchor = S.anchors[0].id; commit(); return; }
-  const chip = ev.target.closest('.achip'); if (!chip) return; const id = chip.dataset.anchor;
-  if (ev.target.dataset.act === 'unpin') { S.anchors = S.anchors.filter(a => a.id !== id); if (S.activeAnchor === id) S.activeAnchor = S.anchors[0]?.id || null; }
-  else S.activeAnchor = id;
-  commit();
+  if (ev.target.id === 'btnPinTeam') { S.rows.filter(r => r.tags.includes('team')).forEach(r => { if (!S.anchors.some(a => a.rowId === r.id)) S.anchors.push({ id: uid(), rowId: r.id, spec: anchorSpecInit(r), color: nextColor(), collapsed: false }); }); commit(); return; }
+  if (ev.target.id === 'btnClearTargets') { S.targets = []; commit(); return; }
+  const tch = ev.target.closest('.tchip'); if (tch) { if (ev.target.dataset.act === 'untarget') { S.targets = S.targets.filter(t => t.id !== tch.dataset.target); commit(); } else targetEditor(tch.dataset.target); return; }
+  const card = ev.target.closest('.acard'); if (!card) return; const a = S.anchors.find(x => x.id === card.dataset.anchor); if (!a) return;
+  const act = ev.target.dataset.act;
+  if (act === 'unpin') { S.anchors = S.anchors.filter(x => x.id !== a.id); commit(); }
+  else if (act === 'collapse') { a.collapsed = !a.collapsed; commit(); }
 });
-$('dock').addEventListener('input', ev => { const ed = ev.target.closest('#dockEd'); if (!ed || !ev.target.dataset.k) return; const a = S.anchors.find(x => x.id === ed.dataset.anchor); if (!a) return;
-  if (ev.target.type === 'range') { const n = ed.querySelector('input[type=number][data-k=sp]'); n.value = ev.target.value; }
-  const [k, v] = readControl(ev.target.type === 'range' ? ed.querySelector('input[type=number][data-k=sp]') : ev.target); if (v !== undefined) a.spec[k] = v;
-  if (ev.target.type === 'number') { const r = ed.querySelector('input[type=range][data-k=sp]'); r.value = a.spec.sp; }
+$('dock').addEventListener('input', ev => { const card = ev.target.closest('.acard'); if (!card || !ev.target.dataset.k) return; const a = S.anchors.find(x => x.id === card.dataset.anchor); if (!a) return;
+  if (ev.target.type === 'range') { const n = card.querySelector('input[type=number][data-k=sp]'); n.value = ev.target.value; }
+  const [k, v] = readControl(ev.target.type === 'range' ? card.querySelector('input[type=number][data-k=sp]') : ev.target); if (v !== undefined) a.spec[k] = v;
+  if (ev.target.type === 'number') { const r = card.querySelector('input[type=range][data-k=sp]'); r.value = a.spec.sp; }
   save(); // live: update numbers without rebuilding controls (keeps slider focus)
-  const c = anchorCalc(a); ed.querySelector('.big').textContent = c.speed; ed.querySelector('.big').title = c.steps.map(s => `${s.label} → ${s.value}`).join('\n');
-  renderTable(); renderSolve(); renderSummary(); const chip = $('dock').querySelector(`.achip[data-anchor="${a.id}"] b`); if (chip) chip.textContent = c.speed; });
+  const c = anchorCalc(a); const big = card.querySelector('.big'); big.textContent = c.speed; big.title = c.steps.map(s => `${s.label} → ${s.value}`).join('\n');
+  renderTable(); renderStatuses(); renderSolve(); });
+let dragAnchor = null;
+$('dock').addEventListener('dragstart', ev => { const card = ev.target.closest('.acard'); if (!card) return; if (ev.target.closest('input,select,button')) { ev.preventDefault(); return; } dragAnchor = card.dataset.anchor; ev.dataTransfer.effectAllowed = 'move'; });
+$('dock').addEventListener('dragover', ev => { const card = ev.target.closest('.acard'); if (card && dragAnchor) { ev.preventDefault(); card.classList.add('dragover'); } });
+$('dock').addEventListener('dragleave', ev => { const card = ev.target.closest('.acard'); if (card) card.classList.remove('dragover'); });
+$('dock').addEventListener('drop', ev => { const card = ev.target.closest('.acard'); if (!card || !dragAnchor) return; ev.preventDefault(); const from = S.anchors.findIndex(a => a.id === dragAnchor), to = S.anchors.findIndex(a => a.id === card.dataset.anchor); dragAnchor = null; if (from < 0 || to < 0 || from === to) return; const [a] = S.anchors.splice(from, 1); S.anchors.splice(to, 0, a); commit(); });
+$('dock').addEventListener('dragend', () => { dragAnchor = null; $('dock').querySelectorAll('.dragover').forEach(x => x.classList.remove('dragover')); });
 document.addEventListener('keydown', ev => { if (ev.key === '/' && !/input|select|textarea/i.test(document.activeElement.tagName)) { ev.preventDefault(); $('search').focus(); } if (ev.key === 'Escape') closeModal(); });
 
 render();
