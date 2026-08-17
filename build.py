@@ -57,6 +57,9 @@ def main():
         path = s.get("menu") or s.get("shiny_menu") or s.get("front")
         for fk, fs in fallbacks:
             if path: break
+            if isinstance(fs, str) and fs.startswith("sprites/"):   # direct repo-relative path guess
+                if os.path.exists(os.path.join(CL_ROOT, fs)): path = fs
+                continue
             f = sprites.get((fk, fs), {}); path = f.get("menu") or f.get("shiny_menu") or f.get("front")
         if path is None: return -1
         if path not in uri_index:
@@ -71,7 +74,10 @@ def main():
             "types": [t for t in (r["type1"], r["type2"]) if t],
             "spe": r["spe"], "abil": [a for a in abil.get(r["slug"], []) if a in SPEED_ABILITIES],
             "allAbil": [ab_names.get(a, a) for a in abil.get(r["slug"], [])],
-            "mega": None, "sprite": add_sprite("species", r["slug"], [("species", r["slug"].rsplit("-", 1)[0]), ("species", r["slug"][:-1] if r["slug"].endswith("f") else r["slug"])]),
+            "mega": None, "sprite": add_sprite("species", r["slug"], [
+                # female formes (e.g. meowsticf/basculegionf) exist on disk as <dex>-female.png but are not in the sprite table
+                ("path", f"sprites/menu/{r['national_dex']}-female.png"), ("path", f"sprites/species/{r['national_dex']}-female.png"),
+                ("species", r["slug"][:-1] if r["slug"].endswith("f") else r["slug"])] if r["slug"].endswith("f") else []),
         })
     for r in con.execute("select * from mega_evolution where regulation=? order by base_slug, slug", (REG,)):
         entities.append({

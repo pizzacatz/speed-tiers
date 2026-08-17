@@ -18,7 +18,7 @@
 - **`abil`** lists only speed-relevant abilities the entity can have (from `species_ability` / the Mega's fixed ability).
   `allAbil` is the full ability list, shown in the row editor for context.
 - **Sprites**: `menu` variant, falling back to `shiny_menu` then `front`; cropped to content, fit into 56×56, WebP q85.
-  Total ≈ 870 KB of the ~1 MB file. Two entities (Meowstic-F, Basculegion-F) currently have no sprite in the source and show a blank tile.
+  Total ≈ 870 KB of the ~1 MB file. Female formes (Meowstic-F, Basculegion-F) are not in the `sprite` table but exist on disk as `<dex>-female.png`; `build.py` falls back to those paths directly.
 - **Modelled abilities**: Chlorophyll (sun), Swift Swim (rain), Sand Rush (sand), Slush Rush (snow), Surge Surfer (Electric Terrain) ×2;
   Unburden ×2, Quick Feet ×1.5, Protosynthesis/Quark Drive ×1.5, Slow Start ×0.5 (manual `on`, no field condition).
   Speed Boost / stat-stage abilities are represented through the **Stage** control.
