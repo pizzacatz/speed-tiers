@@ -1,0 +1,22 @@
+const E = require('../src/engine.js');
+const AB = { 'swift-swim': { mult: 2, cond: 'rain', name: 'Swift Swim' }, 'quick-feet': { mult: 1.5, cond: null, name: 'Quick Feet' } };
+const garchomp = { spe: 102, abil: [] };
+const kingdra = { spe: 85, abil: ['swift-swim'] };
+let fails = 0;
+const eq = (name, got, want) => { if (got !== want) { fails++; console.log('FAIL', name, got, '!=', want); } else console.log('ok  ', name, got); };
+const f = (o) => ({ weather: null, eterrain: false, trickRoom: false, tailwind: { A: false, B: false }, ...o });
+// vectors validated against champions-logic speed_order
+eq('garchomp jolly 32', E.compute(garchomp, E.merge({ sp: 32, align: 1 }), f(), AB).speed, 169);
+eq('+1 scarf tw para', E.compute(garchomp, E.merge({ sp: 32, align: 1, stage: 1, item: 'scarf', tailwind: true, para: true }), f(), AB).speed, 379);
+eq('-1 then x2 ability', E.compute({ spe: 102, abil: ['swift-swim'] }, E.merge({ sp: 32, align: 1, stage: -1 }), f({ weather: 'rain' }), AB).speed, 224);
+eq('base presented', E.compute(garchomp, E.merge({}), f(), AB).speed, 122);
+eq('min', E.compute(garchomp, E.merge({ align: -1 }), f(), AB).speed, 109);
+eq('kingdra rain auto', E.compute(kingdra, E.merge({ sp: 32, align: 1 }), f({ weather: 'rain' }), AB).speed, 300);
+eq('kingdra no rain', E.compute(kingdra, E.merge({ sp: 32, align: 1 }), f(), AB).speed, 150);
+eq('kingdra abil off in rain', E.compute(kingdra, E.merge({ sp: 32, align: 1, abil: 'off' }), f({ weather: 'rain' }), AB).speed, 150);
+eq('side tailwind', E.compute(garchomp, E.merge({ sp: 32, align: 1, side: 'A' }), f({ tailwind: { A: true, B: false } }), AB).speed, 338);
+eq('relation', E.relation({ speed: 169, priority: 0 }, { speed: 170, priority: 0 }, false), 'slower');
+eq('relation TR', E.relation({ speed: 169, priority: 0 }, { speed: 170, priority: 0 }, true), 'faster');
+eq('relation prio', E.relation({ speed: 10, priority: 1 }, { speed: 170, priority: 0 }, true), 'faster');
+console.log(E.solve(garchomp, E.merge({ sp: 0, align: 0 }), f(), AB, 169, false));
+process.exit(fails ? 1 : 0);
