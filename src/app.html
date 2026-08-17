@@ -22,7 +22,7 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-body{padding-bottom:190px}
+body{padding-bottom:40px}
 button,select,input{font:inherit;color:inherit}
 button{background:var(--bg3);border:1px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer}
 button:hover{border-color:var(--acc)}
@@ -33,11 +33,12 @@ button.danger{border-color:var(--slower);color:var(--slower)}
 input[type=text],input[type=number],input[type=search],select{background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
 input[type=range]{accent-color:var(--acc)}
 .muted{color:var(--fg2)}
-header{position:sticky;top:0;z-index:20;background:var(--bg2);border-bottom:1px solid var(--line);padding:8px 14px;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
+#top{position:sticky;top:0;z-index:20;background:var(--bg2);box-shadow:0 2px 8px rgba(0,0,0,.12)}
+header{border-bottom:1px solid var(--line);padding:8px 14px;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
 header h1{font-size:16px;margin:0 8px 0 0;white-space:nowrap}
 .group{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
 .group .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--fg2);margin-right:2px}
-.toolbar{padding:8px 14px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;border-bottom:1px solid var(--line);background:var(--bg)}
+.toolbar{padding:6px 14px;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;border-bottom:1px solid var(--line);background:var(--bg)}
 .tagchip{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:1px 8px;font-size:12px;border:1px solid transparent;cursor:pointer;background:var(--bg3)}
 .tagchip .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
 .tagchip.on{border-color:var(--fg)}
@@ -50,12 +51,18 @@ header h1{font-size:16px;margin:0 8px 0 0;white-space:nowrap}
 .colchip .x:hover{opacity:1}
 .colchip.dragover{outline:2px dashed var(--acc)}
 main{padding:0 14px}
-table{border-collapse:separate;border-spacing:0;width:100%;font-variant-numeric:tabular-nums}
-thead th{position:sticky;top:0;z-index:5;background:var(--bg2);border-bottom:2px solid var(--line);padding:6px 8px;text-align:right;font-weight:600;font-size:12px;cursor:pointer;white-space:nowrap}
+table{border-collapse:separate;border-spacing:0;width:auto;table-layout:auto;font-variant-numeric:tabular-nums}
+thead th{position:sticky;top:var(--topH,0px);z-index:5;background:var(--bg2);border-bottom:2px solid var(--line);padding:6px 8px;text-align:right;font-weight:600;font-size:12px;cursor:pointer;white-space:nowrap;position:sticky}
+thead th{overflow:visible}
+.rz{position:absolute;top:0;right:-3px;width:7px;height:100%;cursor:col-resize;z-index:6}
+.rz:hover,.rz.active{background:var(--acc)}
+body.resizing{cursor:col-resize;user-select:none}
+tbody td.clip{overflow:hidden;text-overflow:ellipsis}
 thead th.l{text-align:left}
 thead th.sort{color:var(--acc)}
 thead th.sort::after{content:" ▼"}
 tbody td{padding:3px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+tbody td.l{padding-right:14px}
 tbody td.l{text-align:left}
 tbody tr.band{background:var(--band)}
 tbody tr:hover td{background:var(--acc2)}
@@ -77,7 +84,7 @@ tbody tr.divider td{background:var(--anchor);color:#fff;text-align:center;font-w
 .rowactions button{visibility:hidden}
 tr:hover .rowactions button{visibility:visible}
 /* dock */
-#dock{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--bg2);border-top:2px solid var(--anchor);box-shadow:var(--shadow);padding:8px 14px;display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+#dock{background:var(--anchorbg);border-bottom:2px solid var(--anchor);padding:6px 14px;display:flex;gap:12px 16px;flex-wrap:wrap;align-items:center}
 #dock .chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;max-width:100%}
 .achip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:8px;padding:3px 8px;cursor:pointer;background:var(--bg3)}
 .achip.on{border-color:var(--anchor);background:var(--anchorbg)}
@@ -86,14 +93,16 @@ tr:hover .rowactions button{visibility:visible}
 .achip .x{opacity:.6;margin-left:2px}
 .achip .x:hover{opacity:1;color:var(--slower)}
 #dockEd{display:flex;gap:10px 18px;flex-wrap:wrap;align-items:center;flex:1}
-#dockEd .big{font-size:26px;font-weight:700;color:var(--anchor);min-width:64px}
+#dockEd .big{font-size:24px;font-weight:700;color:var(--anchor);min-width:56px}
 .ctl{display:flex;flex-direction:column;gap:2px;font-size:11px;color:var(--fg2)}
 .ctl > *{font-size:13px;color:var(--fg)}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
 .seg button{border:0;border-radius:0;padding:3px 8px;background:var(--bg2)}
 .seg button+button{border-left:1px solid var(--line)}
 .seg button.on{background:var(--acc);color:#fff}
-#solve{font-size:12px;color:var(--fg2);min-width:220px;max-width:420px}
+#solve{font-size:12px;color:var(--fg2)}
+.summ{font-size:12px;color:var(--fg2)}
+.dockline{flex-basis:100%;display:flex;gap:18px;flex-wrap:wrap;align-items:center}
 #solve b{color:var(--fg)}
 /* modal */
 .modalbg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:40px 12px;overflow:auto}
@@ -112,10 +121,11 @@ tr:hover .rowactions button{visibility:visible}
 footer{padding:14px;color:var(--fg2);font-size:11px}
 kbd{border:1px solid var(--line);border-radius:4px;padding:0 4px;font-size:11px;background:var(--bg3)}
 .help{cursor:help;border-bottom:1px dotted var(--fg2)}
-@media (max-width:800px){body{padding-bottom:260px}.badge{min-width:60px}}
+@media (max-width:800px){.badge{min-width:60px}}
 </style>
 </head>
 <body>
+<div id="top">
 <header>
   <h1>⚡ Champions Speed Tiers</h1>
   <div class="group"><span class="lbl">Weather</span><span class="seg" id="weatherSeg"></span></div>
@@ -130,6 +140,7 @@ kbd{border:1px solid var(--line);border-radius:4px;padding:0 4px;font-size:11px;
     <button id="btnHelp" class="sm">?</button>
   </div>
 </header>
+<div id="dock"></div>
 <div class="toolbar">
   <input type="search" id="search" placeholder="Search species…  ( / )" style="width:200px">
   <button id="btnAdd" class="sm">+ Add row</button>
@@ -139,11 +150,11 @@ kbd{border:1px solid var(--line);border-radius:4px;padding:0 4px;font-size:11px;
   <div class="group"><label><input type="checkbox" id="chkMegas" checked> Megas</label>
     <label><input type="checkbox" id="chkOnlyTagged"> Only tagged</label></div>
   <div class="group"><span class="lbl">Columns</span><span class="colchips" id="colChips"></span><button id="btnAddCol" class="sm">+</button>
-    <span class="muted" style="font-size:11px">click = sort by, eye = hide, drag = reorder, ⚙ = edit</span></div>
+    <span class="muted" style="font-size:11px">click = sort by, eye = hide, drag = reorder, ⚙ = edit · drag a header edge to resize, double-click it to auto-fit</span></div>
+</div>
 </div>
 <main><table id="tbl"><thead></thead><tbody></tbody></table></main>
 <footer id="foot"></footer>
-<div id="dock"></div>
 <div id="modalHost"></div>
 
 <script type="application/json" id="data">/*__DATA__*/</script>
@@ -188,13 +199,13 @@ function defaultState() {
     rows: DATA.entities.map(e => ({ id: uid(), ent: e.id, tags: [], ov: {} })),
     anchors: [], activeAnchor: null,
     filters: { tags: [], mode: 'any', search: '', onlyTagged: false, megas: true },
-    theme: 'auto',
+    theme: 'auto', colWidths: {},
   };
 }
 let S = load();
 function load() {
   try { const s = JSON.parse(localStorage.getItem(LS)); if (s && s.v === 1) { // drop rows for entities that no longer exist
-      s.rows = s.rows.filter(r => ENT[r.ent]); s.anchors = s.anchors.filter(a => s.rows.some(r => r.id === a.rowId)); return s; } } catch (e) {}
+      s.rows = s.rows.filter(r => ENT[r.ent]); s.anchors = s.anchors.filter(a => s.rows.some(r => r.id === a.rowId)); s.colWidths = s.colWidths || {}; return s; } } catch (e) {}
   return defaultState();
 }
 let saveT; function save() { clearTimeout(saveT); saveT = setTimeout(() => localStorage.setItem(LS, JSON.stringify(S)), 150); }
@@ -260,8 +271,10 @@ function renderTable() {
   const rows = visibleRows().map(r => { const cells = {}; for (const c of cols) cells[c.id] = calc(r, c); const key = cells[sc.id] || calc(r, sc); return { r, cells, key }; });
   rows.sort((a, b) => Engine.comparator(tr)(a.key, b.key) || ENT[a.r.ent].name.localeCompare(ENT[b.r.ent].name));
   const cmp = Engine.comparator(tr);
-  let h = `<tr><th class="l">Pokémon</th><th class="l">Tags</th>` + cols.map(c => `<th data-sort="${c.id}" class="${c.id === sc.id ? 'sort' : ''}" title="${esc(specSummary(c.spec))}">${esc(c.label)}</th>`).join('') +
-    `<th title="Relative to active anchor at the sort column">vs ${anc ? esc(ENT[S.rows.find(x => x.id === anc.rowId).ent].name) : 'anchor'}</th><th></th></tr>`;
+  const W = k => S.colWidths[k] ? ` style="width:${S.colWidths[k]}px;min-width:${S.colWidths[k]}px;max-width:${S.colWidths[k]}px"` : '';
+  const RZ = k => `<span class="rz" data-rz="${k}" title="Drag to resize · double-click to auto-fit"></span>`;
+  let h = `<tr><th class="l" data-key="name"${W('name')}>Pokémon${RZ('name')}</th><th class="l" data-key="tags"${W('tags')}>Tags${RZ('tags')}</th>` + cols.map(c => `<th data-sort="${c.id}" data-key="${c.id}"${W(c.id)} class="${c.id === sc.id ? 'sort' : ''}" title="${esc(specSummary(c.spec))}">${esc(c.label)}${RZ(c.id)}</th>`).join('') +
+    `<th data-key="vs"${W('vs')} title="Relative to active anchor at the sort column">vs ${anc ? esc(ENT[S.rows.find(x => x.id === anc.rowId).ent].name) : 'anchor'}${RZ('vs')}</th><th></th></tr>`;
   $('tbl').tHead.innerHTML = h;
   let out = [], band = false, lastSpeed = null, lastP = null, dividerDone = !ancC;
   for (const { r, cells, key } of rows) {
@@ -270,8 +283,8 @@ function renderTable() {
     const e = ENT[r.ent]; const isAnchor = anc && anc.rowId === r.id;
     let rel = ''; if (ancC && !isAnchor) { const rl = Engine.relation(key, ancC, tr); const d = key.speed - ancC.speed; rel = `<span class="badge ${rl}">${rl === 'tie' ? 'speed tie' : rl === 'faster' ? 'outspeeds' : 'slower'} ${d > 0 ? '+' + d : d}</span>`; }
     else if (isAnchor) rel = `<span class="badge self">◆ anchor</span>`;
-    out.push(`<tr class="${band ? 'band' : ''} ${isAnchor ? 'anchorrow' : ''}" data-row="${r.id}"><td class="l">${sprite(e)}<span class="name" data-act="edit">${esc(e.name)}</span>${e.mega ? '<span class="mega">MEGA</span>' : ''}${e.types.map(t => `<span class="type" style="background:${TYPE_COLORS[t] || '#888'}">${t.slice(0, 3)}</span>`).join('')}${e.abil.length ? `<span class="muted" style="font-size:10px;margin-left:4px" title="Speed ability">${e.abil.map(a => AB[a].name).join('/')}</span>` : ''}</td>` +
-      `<td class="l">${r.tags.map(id => { const t = tagById(id); return t ? `<span class="tagchip mini" style="border-color:${t.color}"><span class="dot" style="background:${t.color}"></span>${esc(t.name)}</span>` : ''; }).join(' ')}${Object.keys(r.ov).length ? `<span class="tagchip mini" style="border-color:var(--anchor)" title="${esc(specSummary(r.ov))}">custom</span>` : ''}</td>` +
+    out.push(`<tr class="${band ? 'band' : ''} ${isAnchor ? 'anchorrow' : ''}" data-row="${r.id}"><td class="l ${S.colWidths.name ? 'clip' : ''}"${S.colWidths.name ? ` style="max-width:${S.colWidths.name}px"` : ''}>${sprite(e)}<span class="name" data-act="edit">${esc(e.name)}</span>${e.mega ? '<span class="mega">MEGA</span>' : ''}${e.types.map(t => `<span class="type" style="background:${TYPE_COLORS[t] || '#888'}">${t.slice(0, 3)}</span>`).join('')}${e.abil.length ? `<span class="muted" style="font-size:10px;margin-left:4px" title="Speed ability">${e.abil.map(a => AB[a].name).join('/')}</span>` : ''}</td>` +
+      `<td class="l ${S.colWidths.tags ? 'clip' : ''}"${S.colWidths.tags ? ` style="max-width:${S.colWidths.tags}px"` : ''}>${r.tags.map(id => { const t = tagById(id); return t ? `<span class="tagchip mini" style="border-color:${t.color}"><span class="dot" style="background:${t.color}"></span>${esc(t.name)}</span>` : ''; }).join(' ')}${Object.keys(r.ov).length ? `<span class="tagchip mini" style="border-color:var(--anchor)" title="${esc(specSummary(r.ov))}">custom</span>` : ''}</td>` +
       cols.map(c => { const v = cells[c.id]; const ok = overriddenKeys(r, c); return `<td class="cell ${c.id === sc.id ? 'sortcol' : ''}" data-col="${c.id}" title="${esc(v.steps.map(s => `${s.label} → ${s.value}`).join('\n'))}${ok.length ? '\n(overridden: ' + ok.join(', ') + ')' : ''}">${v.priority ? `<span class="muted" style="font-size:10px">p${v.priority > 0 ? '+' : ''}${v.priority} </span>` : ''}${v.speed}${ok.length ? '<span class="ov">●</span>' : ''}</td>`; }).join('') +
       `<td>${rel}</td><td class="rowactions"><button class="sm ghost" data-act="pin" title="Pin as anchor">◆</button><button class="sm ghost" data-act="dup" title="Duplicate row">⧉</button><button class="sm ghost" data-act="del" title="Remove row">✕</button></td></tr>`);
   }
@@ -292,10 +305,15 @@ function renderDock() {
     h += `<div id="dockEd" data-anchor="${anc.id}">
       <div class="big" title="${esc(c.steps.map(s => `${s.label} → ${s.value}`).join('\n'))}">${c.speed}</div>
       ${specControls(sp, false, e)}
-      <div id="solve"></div></div>`;
+      <div class="dockline"><span class="summ" id="summ"></span><div id="solve"></div></div></div>`;
   } else h += `<div class="muted" style="align-self:center">Pin a Pokémon (◆ on a row, or click a name → “Pin as anchor”) to compare everything against it. Hover a row to see what the anchor would need to outspeed it.</div>`;
-  $('dock').innerHTML = h; renderSolve();
+  $('dock').innerHTML = h; renderSolve(); renderSummary(); syncTop();
 }
+function renderSummary() { const el = $('summ'); const anc = activeAnchor(); if (!el || !anc) return; const c = anchorCalc(anc); const sc = sortColumn(); let f = 0, t = 0, sl = 0;
+  for (const r of visibleRows()) { if (r.id === anc.rowId) continue; const rl = Engine.relation(calc(r, sc), c, S.field.trickRoom); if (rl === 'faster') f++; else if (rl === 'tie') t++; else sl++; }
+  el.innerHTML = `at <b>${esc(sc.label)}</b>: <b style="color:var(--slower)">${f}</b> faster · <b style="color:var(--tie)">${t}</b> tie · <b style="color:var(--faster)">${sl}</b> slower`; }
+function syncTop() { const h = $('top').offsetHeight; document.documentElement.style.setProperty('--topH', h + 'px'); }
+new ResizeObserver(syncTop).observe(document.getElementById('top'));
 function specControls(sp, partial, e) { // partial=true adds "inherit" options; returns HTML with data-k controls
   const opt = (k, vals, cur) => `<select data-k="${k}">${partial ? `<option value="__inh" ${cur == null ? 'selected' : ''}>(inherit)</option>` : ''}${vals.map(([v, l]) => `<option value="${v}" ${cur != null && String(cur) === String(v) ? 'selected' : ''}>${l}</option>`).join('')}</select>`;
   const abilNames = e ? e.abil.map(a => AB[a].name).join('/') : '';
@@ -407,6 +425,7 @@ function helpModal() {
   <p><b>Tags</b> describe rows (your team, opponents, scarfers…) and can carry defaults. <b>Overrides</b> on a single row are facts about that specific set. Precedence: global → column → tags (in order) → row override. A <span style="color:var(--anchor)">●</span> marks cells where a tag/override changed the column’s own preset.</p>
   <p><b>Anchor</b>: pin any row (◆). The dock stays visible while you scroll; edit the anchor's set live, and every row shows outspeeds/tie/slower with the delta; a divider marks where the anchor sits. Hover a row to see what the anchor would need to beat it. Pin up to your whole team and switch between them.</p>
   <p><b>Field bar</b>: weather / Electric Terrain auto-activate speed abilities (Swift Swim, Chlorophyll, Sand Rush, Slush Rush, Surge Surfer) for rows whose ability mode is “auto”. Tailwind Side A/B applies to rows whose tag/override sets that side (My Team = A, Opponent = B).</p>
+  <p><b>Columns widths</b> default to fit their content (nothing wraps or gets cut off). Drag a header's right edge to resize; double-click the edge to auto-fit again. Widths are saved.</p>
   <p>Everything is saved in this browser (localStorage). Use Export/Import to back up or share. <kbd>/</kbd> focuses search.</p>`);
 }
 
@@ -441,7 +460,13 @@ $('colChips').addEventListener('dragstart', ev => { const chip = ev.target.close
 $('colChips').addEventListener('dragover', ev => { const chip = ev.target.closest('.colchip'); if (chip) { ev.preventDefault(); chip.classList.add('dragover'); } });
 $('colChips').addEventListener('dragleave', ev => { const chip = ev.target.closest('.colchip'); if (chip) chip.classList.remove('dragover'); });
 $('colChips').addEventListener('drop', ev => { const chip = ev.target.closest('.colchip'); if (!chip || !dragId) return; ev.preventDefault(); const from = S.columns.findIndex(c => c.id === dragId), to = S.columns.findIndex(c => c.id === chip.dataset.col); if (from < 0 || to < 0 || from === to) return; const [c] = S.columns.splice(from, 1); S.columns.splice(to, 0, c); dragId = null; commit(); });
+let rzState = null;
+$('tbl').addEventListener('mousedown', ev => { const rz = ev.target.closest('.rz'); if (!rz) return; ev.preventDefault(); ev.stopPropagation(); const th = rz.parentElement; rzState = { key: rz.dataset.rz, startX: ev.clientX, startW: th.getBoundingClientRect().width, th }; rz.classList.add('active'); document.body.classList.add('resizing'); });
+document.addEventListener('mousemove', ev => { if (!rzState) return; const w = Math.max(40, Math.round(rzState.startW + ev.clientX - rzState.startX)); rzState.th.style.width = rzState.th.style.minWidth = rzState.th.style.maxWidth = w + 'px'; rzState.w = w; });
+document.addEventListener('mouseup', () => { if (!rzState) return; if (rzState.w) S.colWidths[rzState.key] = rzState.w; document.body.classList.remove('resizing'); rzState = null; commit(); });
+$('tbl').addEventListener('dblclick', ev => { const rz = ev.target.closest('.rz'); if (!rz) return; ev.preventDefault(); delete S.colWidths[rz.dataset.rz]; commit(); });
 $('tbl').addEventListener('click', ev => {
+  if (ev.target.closest('.rz')) return;
   const th = ev.target.closest('th[data-sort]'); if (th) { S.sortCol = th.dataset.sort; commit(); return; }
   const tr = ev.target.closest('tr[data-row]'); if (!tr) return; const id = tr.dataset.row; const act = ev.target.dataset.act;
   if (act === 'pin') pin(id); else if (act === 'dup') dupRow(id); else if (act === 'del') delRow(id); else if (act === 'edit' || ev.target.closest('td.l')) rowEditor(id);
@@ -461,7 +486,7 @@ $('dock').addEventListener('input', ev => { const ed = ev.target.closest('#dockE
   if (ev.target.type === 'number') { const r = ed.querySelector('input[type=range][data-k=sp]'); r.value = a.spec.sp; }
   save(); // live: update numbers without rebuilding controls (keeps slider focus)
   const c = anchorCalc(a); ed.querySelector('.big').textContent = c.speed; ed.querySelector('.big').title = c.steps.map(s => `${s.label} → ${s.value}`).join('\n');
-  renderTable(); renderSolve(); const chip = $('dock').querySelector(`.achip[data-anchor="${a.id}"] b`); if (chip) chip.textContent = c.speed; });
+  renderTable(); renderSolve(); renderSummary(); const chip = $('dock').querySelector(`.achip[data-anchor="${a.id}"] b`); if (chip) chip.textContent = c.speed; });
 document.addEventListener('keydown', ev => { if (ev.key === '/' && !/input|select|textarea/i.test(document.activeElement.tagName)) { ev.preventDefault(); $('search').focus(); } if (ev.key === 'Escape') closeModal(); });
 
 render();

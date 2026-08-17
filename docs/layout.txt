@@ -1,10 +1,10 @@
 ┌ ⚡ Champions Speed Tiers   WEATHER [None][Sun][Rain][Sand][Snow]  [E-Terrain][Trick Room]  TAILWIND [Side A][Side B]   ◐ Export Import Reset ? ┐
-├ [Search…]  [+ Add row]  TAGS ● My Team ● Opponent ● Watchlist ● Trick Room ● Scarfer  any  [Manage tags]  ☑ Megas ☐ Only tagged           ┤
-├ COLUMNS  [👁 Min ⚙][👁 Base ⚙][👁 Max ⚙][👁 Scarf ⚙][◌ +1][◌ −1][👁 Tailwind ⚙][◌ Scarf+TW]  +                                              ┤
-│ Pokémon                 Tags        Min   Base   Max▼  Scarf  Tailwind   vs Garchomp                                                       │
-│ Dragapult  DRA GHO                  145   162    213   319    426        slower −21                                                        │
-│ ───────────────────────── ▲ faster than Garchomp (234) — slower ▼ ─────────────────────────────────────────────────────────────────────── │
-│ Garchomp  DRA GRO   My Team         …                                    ◆ anchor                                                          │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-[ANCHORS  🐊 Garchomp 234 ✕  [Pin team]   234   SP ▬▬●▬ 20  Alignment +Spe  Stage 0  Item Choice Scarf  Ability auto  Tailwind no  Para no  Priority 0  Side — ]
-[ vs Dragapult 213 (Max): outspeeds ]
+├ ANCHORS  🐊 Garchomp 234 ✕  [Pin team]   234   SP ▬▬●▬ 20  Alignment +Spe  Stage 0  Item Choice Scarf  Ability auto  Tailwind no  Para no  Prio 0  Side — ┤
+├          at Max: 0 faster · 0 tie · 310 slower   vs Dragapult 213 (Max): outspeeds                                                                       ┤
+├ [Search…]  [+ Add row]  TAGS ● My Team ● Opponent ● Watchlist ● Trick Room ● Scarfer  any  [Manage tags]  ☑ Megas ☐ Only tagged                        ┤
+├ COLUMNS  [👁 Min ⚙][👁 Base ⚙][👁 Max ⚙][👁 Scarf ⚙][◌ +1][◌ −1][👁 Tailwind ⚙][◌ Scarf+TW]  +                                                           ┤
+│ Pokémon              │ Tags    │ Min │ Base │ Max▼ │ Scarf │ Tailwind │ vs Garchomp     ← header sticks below the dock; drag edges to resize             │
+│ Dragapult  DRA GHO   │         │ 145 │ 162  │ 213  │ 319   │ 426      │ slower −21                                                                     │
+│ ───────────────────── ▲ faster than Garchomp (234) — slower ▼ ──────────────────────────────                                                             │
+│ Garchomp  DRA GRO    │ My Team │ …   │      │      │       │          │ ◆ anchor                                                                       │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘

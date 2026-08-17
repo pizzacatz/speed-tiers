@@ -37,7 +37,8 @@ The engine is CommonJS-exported when `module` exists so `test/engine.test.js` ca
   rows:    [{ id, ent: entityId, tags:[tagId], ov: PartialSpec }],
   anchors: [{ id, rowId, spec: FullSpec }],               activeAnchor: id|null,
   filters: { tags:[], mode:'any'|'all', search, onlyTagged, megas },
-  theme:   'auto'|'dark'|'light'
+  theme:   'auto'|'dark'|'light',
+  colWidths: { [columnId|'name'|'tags'|'vs']: px }   // absent = content-fit
 }
 ```
 - Rows reference entities by id, so the same species can appear several times (Duplicate row) with different tags/overrides.
@@ -61,6 +62,8 @@ badge(row)        = relation(sortKey(row), anchorSpeed, trickRoom)
 - Table is one `innerHTML` string per render (≈300 rows × ≤8 columns → a few ms). Rows are banded by distinct
   (priority, speed) so speed ties are visible; the anchor divider row is inserted where the anchor sorts.
 - Anchor dock edits update in place (`input` event → recompute numbers + `renderTable()`), not a full dock re-render, so the SP slider keeps focus.
+- `#top` (header + anchor dock + toolbar) is one sticky block; a `ResizeObserver` writes its height to `--topH`, which the sticky `thead` uses as its `top` offset. `main` must not be an overflow container or the sticky header would attach to it instead of the viewport.
+- Column widths: table is `width:auto; table-layout:auto` with `white-space:nowrap`, so every column is content-fit by default. Each `th` carries a `.rz` drag handle (mousedown/mousemove/mouseup on `document`); the resulting px width is stored in `S.colWidths[key]` and applied as `width/min-width/max-width` on the `th` (name/tags cells additionally clip with an ellipsis when narrowed). Double-click a handle to delete the entry and auto-fit again.
 - All interactions are event-delegated on `#tbl`, `#dock`, `#colChips`, `#tagFilters`; modals are rendered into `#modalHost`.
 
 ## Extension points
