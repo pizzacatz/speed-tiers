@@ -97,3 +97,29 @@ test('JSON file import validates first, previews valid files, and permits cancel
   assert.equal(a.state().name,'Imported setup');assert.equal(a.state().field.trickRoom,false);
   assert.deepEqual(JSON.parse(a.w.localStorage.getItem(LS+'.previous')),before);assert.deepEqual(a.errors,[]);
 });
+test('hover comparisons reserve space and remain readable after leaving the table',async t=>{
+  const a=await app();t.after(a.close);
+  a.input('#search','Garchomp');a.click('tr[data-row] [data-act=pin]');
+  const pane=a.q('[data-hov]');
+  const height=a.w.getComputedStyle(pane).height;
+  assert.notEqual(height,'auto');assert.notEqual(height,'');
+  assert.equal(a.w.getComputedStyle(pane).overflow,'auto');
+  assert.equal(a.w.getComputedStyle(a.q('.acard')).flexShrink,'0');
+  assert.match(pane.textContent,/Hover or focus/);
+  a.input('#search','Jolteon');
+  a.q('tr[data-row] .name').dispatchEvent(new a.w.MouseEvent('mouseover',{bubbles:true}));
+  const result=pane.textContent;
+  assert.match(result,/Jolteon/);assert.match(result,/compare/);
+  assert.equal(a.w.getComputedStyle(pane).height,height);
+  pane.scrollTop=20;
+  a.q('tr[data-row] td.cell').dispatchEvent(new a.w.MouseEvent('mouseover',{bubbles:true}));
+  assert.equal(pane.scrollTop,20); // moving within one row does not redraw the comparison
+  a.q('#tbl').dispatchEvent(new a.w.MouseEvent('mouseleave'));
+  a.q('th').dispatchEvent(new a.w.MouseEvent('mouseover',{bubbles:true}));
+  pane.focus();
+  assert.equal(pane.textContent,result);assert.equal(pane.scrollTop,20);
+  a.input('#search','Lucario');a.q('tr[data-row] .name').focus();
+  assert.match(pane.textContent,/Lucario/);assert.equal(pane.scrollTop,0);
+  assert.equal(a.w.getComputedStyle(pane).height,height);
+  assert.deepEqual(a.errors,[]);
+});

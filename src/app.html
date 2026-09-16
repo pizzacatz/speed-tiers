@@ -85,9 +85,9 @@ tbody tr.divider td{background:var(--anchor);color:#fff;text-align:center;font-w
 .rowactions button{visibility:visible}
 .rowactions{position:sticky;right:0;background:var(--bg2);z-index:2}
 /* dock */
-#dock{background:var(--anchorbg);border-bottom:2px solid var(--anchor);padding:4px 14px 6px;display:flex;flex-direction:column;gap:4px;max-height:52vh;overflow:auto}
+#dock{background:var(--anchorbg);border-bottom:2px solid var(--anchor);padding:4px 14px 6px;display:flex;flex-direction:column;gap:4px;max-height:52vh;overflow:auto;scrollbar-gutter:stable}
 .dockhead{display:flex;gap:8px 14px;flex-wrap:wrap;align-items:center;font-size:12px}
-.acard{border:1px solid var(--line);border-left:5px solid var(--anchor);border-radius:8px;background:var(--bg2);padding:4px 10px;display:flex;flex-direction:column;gap:2px}
+.acard{border:1px solid var(--line);border-left:5px solid var(--anchor);border-radius:8px;background:var(--bg2);padding:4px 10px;display:flex;flex-direction:column;flex-shrink:0;min-width:0;gap:2px}
 .acard.dragover{outline:2px dashed var(--acc)}
 .ahead{display:flex;gap:8px 14px;flex-wrap:wrap;align-items:center}
 .grip{cursor:grab;color:var(--fg2);user-select:none;letter-spacing:-2px}
@@ -95,7 +95,8 @@ tbody tr.divider td{background:var(--anchor);color:#fff;text-align:center;font-w
 .tline{display:flex;gap:6px 16px;flex-wrap:wrap;font-size:12px;color:var(--fg2);align-items:center}
 .tline .tst{white-space:nowrap}
 .tline .tst b{color:var(--fg)}
-.hov{font-size:12px;color:var(--fg2);min-height:0}
+/* Reserve three lines even when idle. Hover content must never resize the dock. */
+.hov{font-size:12px;line-height:1.4;color:var(--fg2);height:calc(4.2em + 12px);flex:none;overflow:auto;overflow-wrap:anywhere;scrollbar-gutter:stable;border-top:1px solid var(--line);padding:6px 0}
 .tchip{display:inline-flex;align-items:center;gap:4px;border:1px dashed var(--tie);border-radius:6px;padding:1px 6px;cursor:pointer;background:var(--bg2);font-size:12px}
 .tchip .x{opacity:.6}.tchip .x:hover{opacity:1;color:var(--slower)}
 td.cell.target{outline:2px solid var(--tie);outline-offset:-2px;border-radius:4px}
@@ -155,6 +156,7 @@ label input,textarea{max-width:100%}textarea{font:inherit;color:inherit;backgrou
   .cellButton{min-width:44px}.rowactions button{min-width:40px}
   .modal{padding:14px}.frow{gap:12px}.ctl{font-size:14px}
   #dock{padding:8px}.guide{margin:8px}.colchip button{min-width:36px}
+  .hov{height:calc(5.6em + 12px)}
 }
 </style>
 </head>
@@ -396,7 +398,7 @@ function renderDock() {
         ${a.collapsed ? `<span class="muted" style="font-size:12px">${esc(specSummary(a.spec))}</span>` : specControls(sp, false, e)}
         <button class="sm ghost" data-act="collapse" title="${a.collapsed ? 'Expand controls' : 'Collapse controls'}">${a.collapsed ? '▸ edit' : '▾'}</button>
         <button class="sm ghost" data-act="up" aria-label="Move ${esc(e.name)} anchor up" ${S.anchors[0].id === a.id ? 'disabled' : ''}>↑</button><button class="sm ghost" data-act="down" aria-label="Move ${esc(e.name)} anchor down" ${S.anchors.at(-1).id === a.id ? 'disabled' : ''}>↓</button><button class="sm ghost" data-act="unpin" aria-label="Unpin ${esc(e.name)}">✕</button></div>
-      <div class="tline" data-tline></div><div class="hov" data-hov></div></div>`;
+      <div class="tline" data-tline></div><div class="hov" data-hov tabindex="0" role="region" aria-label="Comparison for ${esc(e.name)}"></div></div>`;
   }
   $('dock').innerHTML = h; renderStatuses(); renderSolve(); syncTop();
 }
@@ -444,10 +446,11 @@ function renderSolve() {
   const trow = hoverRowId && S.rows.find(r => r.id === hoverRowId); const sc = sortColumn(); const tr = S.field.trickRoom;
   for (const { a, c, row } of anchorList()) {
     const el = $('dock').querySelector(`.acard[data-anchor="${a.id}"] [data-hov]`); if (!el) continue; const e = ENT[row.ent];
-    if (!trow || trow.id === a.rowId) { el.innerHTML = ''; continue; }
+    if (!trow || trow.id === a.rowId) { el.textContent = trow ? 'This Pokémon is your anchor. Hover or focus another row to compare.' : 'Hover or focus a Pokémon row to compare. The last comparison stays here while you read it.'; el.scrollTop = 0; continue; }
     const tc = calc(trow, sc); const te = ENT[trow.ent]; const rl = Engine.relation(c, tc, tr);
     const sol = rl === 'faster' ? [] : Engine.solve(e, Engine.merge(a.spec), S.field, AB, tc, tr);
     el.innerHTML = `compare — vs <b>${esc(te.name)}</b> ${tc.speed} (${esc(sc.label)}): <b style="color:var(--${rl})">${rl === 'faster' ? 'outspeeds' : rl === 'tie' ? 'speed tie' : 'slower'}</b>` + (sol.length ? ` → ${sol.map(s => `<b>${esc(s.label)}</b>`).join(' · ')}` : '');
+    el.scrollTop = 0;
   }
 }
 function targetEditor(tid) {
@@ -733,9 +736,13 @@ $('tbl').addEventListener('click', ev => {
   const cell = ev.target.closest('td.cell'); if (cell) { toggleTarget(id, cell.dataset.col); return; }
   if (act === 'pin') pin(id); else if (act === 'dup') dupRow(id); else if (act === 'del') delRow(id); else if (act === 'edit' || ev.target.closest('td.l')) rowEditor(id);
 });
-$('tbl').addEventListener('mouseover', ev => { const tr = ev.target.closest('tr[data-row]'); const id = tr ? tr.dataset.row : null; if (id !== hoverRowId) { hoverRowId = id; renderSolve(); } });
-$('tbl').addEventListener('focusin', ev => { hoverRowId = ev.target.closest('tr[data-row]')?.dataset.row || null; renderSolve(); });
-$('tbl').addEventListener('mouseleave', () => { hoverRowId = null; renderSolve(); });
+function compareRow(ev) {
+  const id = ev.target.closest('tr[data-row]')?.dataset.row;
+  // Ignore headers, dividers, and leaving the table: keep the result available to read/scroll.
+  if (id && id !== hoverRowId) { hoverRowId = id; renderSolve(); }
+}
+$('tbl').addEventListener('mouseover', compareRow);
+$('tbl').addEventListener('focusin', compareRow);
 $('dock').addEventListener('click', ev => {
   if (ev.target.id === 'btnPinTeam') { S.rows.filter(r => r.tags.includes('team')).forEach(r => { if (S.anchors.length < 32 && !S.anchors.some(a => a.rowId === r.id)) S.anchors.push({ id: uid(), rowId: r.id, spec: anchorSpecInit(r), color: nextColor(), collapsed: false }); }); commit(); return; }
   if (ev.target.id === 'btnClearTargets') { S.targets = []; commit(); return; }
