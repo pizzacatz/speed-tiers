@@ -25,6 +25,7 @@ async function app(options={}) {
   const q=s=>d.querySelector(s);
   const click=s=>{assert(q(s),s);q(s).click();};
   const input=(s,v)=>{const e=q(s);assert(e,s);e.value=v;e.dispatchEvent(new w.Event('input',{bubbles:true}));};
+  if (!options.compare) click('#viewTiers');
   const flush=()=>w.dispatchEvent(new w.Event('pagehide'));
   const state=()=>{flush();return JSON.parse(w.localStorage.getItem(LS));};
   return {w,d,q,click,input,flush,state,errors,close:()=>w.close()};
@@ -122,4 +123,39 @@ test('hover comparisons reserve space and remain readable after leaving the tabl
   assert.match(pane.textContent,/Lucario/);assert.equal(pane.scrollTop,0);
   assert.equal(a.w.getComputedStyle(pane).height,height);
   assert.deepEqual(a.errors,[]);
+});
+test('Compare defaults to a focused matchup; hovering never changes selection',async t=>{
+  const a=await app({compare:true});t.after(a.close);
+  assert.equal(a.q('#compareView').hidden,false);assert.equal(a.q('#tiersView').hidden,true);
+  assert.equal(a.d.querySelectorAll('[data-rival]').length,346);
+  assert.match(a.q('#cmpMine').textContent,/Garchomp/);assert.match(a.q('#cmpOpponent').textContent,/Lucario-Mega-Z/);
+  const initial=a.q('#cmpResult').textContent;
+  a.q('[data-rival=jolteon]').dispatchEvent(new a.w.MouseEvent('mouseover',{bubbles:true}));
+  assert.equal(a.q('#cmpResult').textContent,initial);assert.equal(a.state().compare.opponent.ent,'lucariomegaz');
+  a.q('[data-rival=jolteon]').focus();a.click('[data-rival=jolteon]');
+  assert.equal(a.d.activeElement.dataset.rival,'jolteon');assert.equal(a.state().compare.opponent.ent,'jolteon');
+  assert.equal(a.q('#cmpOpponent [data-cmp-speed]').textContent,'200');
+  a.input('#cmpMine [data-cmp-k=item]','scarf');assert.match(a.q('#cmpResult h3').textContent,/You move first/);
+  assert.equal(a.q('#cmpMine [data-cmp-speed]').textContent,'253');
+  a.click('#btnTR');assert.match(a.q('#cmpResult h3').textContent,/opponent moves first/);
+  a.click('#viewTiers');assert.equal(a.q('#compareView').hidden,true);a.click('#viewCompare');assert.equal(a.state().compare.mine.spec.item,'scarf');
+  assert.deepEqual(a.errors,[]);
+});
+test('Compare supports species search, set options, presets and shared setup restoration',async t=>{
+  const a=await app({compare:true});t.after(a.close);
+  a.click('#cmpMine [data-choose]');a.input('#chooseSearch','Jolteon');a.click('[data-pick=jolteon]');
+  assert.equal(a.state().compare.mine.ent,'jolteon');assert.equal(a.d.activeElement.dataset.choose,'mine');
+  a.input('#cmpMine [data-cmp-k=sp]','999');assert.equal(a.q('#cmpMine [data-cmp-k=sp]').value,'32');
+  a.input('#cmpMine [data-cmp-k=para]','true');assert.equal(a.q('#cmpMine [data-cmp-speed]').textContent,'300');
+  a.input('#cmpSearch','Garchomp');assert.equal(a.d.querySelectorAll('[data-rival]').length,3);
+  a.click('[data-rival=garchompmegaz]');
+  a.q('#cmpPreset').value='min';a.q('#cmpPreset').dispatchEvent(new a.w.Event('change'));
+  assert.equal(a.q('#cmpOpponent [data-cmp-speed]').textContent,'153');
+  a.input('#cmpOpponent [data-cmp-k=priority]','1');assert.equal(a.q('#cmpPreset').value,'custom');assert.match(a.q('#cmpSuggestions').textContent,/higher priority/);
+  a.click('#btnShare');
+  for(let i=0;i<50&&!a.q('#shareURL');i++)await new Promise(r=>setTimeout(r,10));
+  const b=await app({compare:true,hash:new URL(a.q('#shareURL').value).hash});t.after(b.close);
+  for(let i=0;i<50&&!b.q('#applySetup');i++)await new Promise(r=>setTimeout(r,10));
+  b.click('#applySetup');assert.deepEqual(b.state().compare,a.state().compare);assert.equal(b.q('#compareView').hidden,false);
+  assert.deepEqual(a.errors,[]);assert.deepEqual(b.errors,[]);
 });

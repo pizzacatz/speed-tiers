@@ -158,27 +158,46 @@ label input,textarea{max-width:100%}textarea{font:inherit;color:inherit;backgrou
   #dock{padding:8px}.guide{margin:8px}.colchip button{min-width:36px}
   .hov{height:calc(5.6em + 12px)}
 }
+/*__COMPARE_CSS__*/
 </style>
 </head>
 <body>
-<div id="top">
-<header>
-  <h1>⚡ Champions Speed Tiers <span class="muted" id="regulation"></span></h1>
-  <div class="group"><span class="lbl">Weather</span><span class="seg" id="weatherSeg"></span></div>
-  <div class="group"><button id="btnET" title="Electric Terrain (Surge Surfer)">E-Terrain</button>
-    <button id="btnTR" title="Trick Room: slower moves first">Trick Room</button></div>
-  <div class="group"><span class="lbl">Tailwind</span><span class="seg"><button id="twA" title="Tailwind for side A (My Team)">Side A</button><button id="twB" title="Tailwind for side B (Opponent)">Side B</button></span></div>
-  <div class="group" style="margin-left:auto">
-    <button id="btnTheme" aria-label="Change color theme" class="sm" title="Toggle theme">◐</button>
-    <button id="btnSetups" class="sm">Setups</button>
-    <button id="btnShare" class="sm">Share link</button>
-    <span class="setupName muted" id="setupName"></span>
-    <button id="btnExport" class="sm">Export</button>
-    <button id="btnImport" class="sm">Import</button>
-    <button id="btnReset" class="sm danger">Reset</button>
-    <button id="btnHelp" aria-label="Help and getting started" class="sm">Help</button>
-  </div>
+<div class="appShell">
+<header class="appHeader">
+  <div class="brand"><span class="brandMark" aria-hidden="true">↗</span><div><h1>Speed tiers <span id="regulation" class="regBadge"></span></h1><span class="brandSub">Pokémon Champions</span></div></div>
+  <nav class="viewNav" aria-label="Workspace"><button id="viewCompare" aria-pressed="true">Compare</button><button id="viewTiers" aria-pressed="false">Full tiers</button></nav>
+  <div class="appActions"><span class="setupName muted" id="setupName"></span><button id="btnSetups">Setups</button><button id="btnShare" class="primary">Share</button>
+  <details class="appMenu"><summary aria-label="More options">More</summary><div class="menuPanel">
+    <button id="btnExport">Export JSON</button><button id="btnImport">Import JSON</button><button id="btnTheme">Change theme</button><button id="btnHelp">Help</button><button id="btnReset" class="danger">Reset setup</button>
+  </div></details></div>
 </header>
+<div id="notice" role="status" aria-live="polite"></div>
+<div class="fieldBar" aria-label="Battle conditions">
+  <div class="group weatherGroup"><span class="fieldLabel">Weather</span><span class="seg" id="weatherSeg"></span></div>
+  <div class="group"><button id="btnTR">Trick Room</button><button id="twA" title="Tailwind for your Pokémon (side A)">Your Tailwind</button><button id="twB" title="Tailwind for the opponent (side B)">Opponent Tailwind</button></div>
+  <details class="fieldMore"><summary>More conditions</summary><button id="btnET">Electric Terrain</button></details>
+</div>
+<section id="compareView" aria-labelledby="compareHeading">
+  <div class="workspaceIntro"><div><span class="eyebrow">ONE MATCHUP AT A TIME</span><h2 id="compareHeading">Who moves first?</h2><p>Pick a rival. Find the Speed you need.</p></div><span class="quietPill">Level 50 · Stat Points</span></div>
+  <div class="compareLayout">
+    <section class="rosterPanel" aria-labelledby="rosterHeading">
+      <div class="panelHeading"><div><h3 id="rosterHeading">Find a benchmark</h3><p id="cmpCount"></p></div><label class="compactLabel">Opponent preset<select id="cmpPreset"><option value="max">Max Speed</option><option value="base">Uninvested</option><option value="min">Minimum Speed</option><option value="scarf">Choice Scarf</option><option value="custom" disabled>Custom set</option></select></label></div>
+      <label class="rosterSearch"><span aria-hidden="true">⌕</span><input id="cmpSearch" type="search" maxlength="160" placeholder="Search Pokémon…" aria-label="Search comparison roster"><kbd>/</kbd></label>
+      <div class="rosterLegend"><span>Pokémon</span><span>Speed</span><span>vs yours</span></div>
+      <div id="cmpRoster" class="comparisonRoster" role="group" aria-label="Choose an opponent"></div>
+      <p class="rosterNote">Select a row to compare. Hover only highlights it.</p>
+    </section>
+    <aside class="compareInspector" aria-label="Selected matchup">
+      <div id="cmpResult" class="matchResult" role="status" aria-live="polite"></div>
+      <div id="cmpMine" class="setCard"></div>
+      <div id="cmpOpponent" class="setCard"></div>
+      <div id="cmpSuggestions" class="suggestions"></div>
+    </aside>
+  </div>
+</section>
+<section id="tiersView" hidden aria-label="Full Speed tiers">
+<div class="workspaceIntro"><div><span class="eyebrow">THE COMPLETE PICTURE</span><h2>Full Speed tiers</h2><p>Explore presets, tag teams, and compare several anchors.</p></div></div>
+<div id="top">
 <div id="dock"></div>
 <div class="toolbar">
   <input type="search" id="search" aria-label="Search species" maxlength="160" placeholder="Search species…  ( / )" style="width:200px">
@@ -192,10 +211,11 @@ label input,textarea{max-width:100%}textarea{font:inherit;color:inherit;backgrou
     <span class="muted" style="font-size:11px">click = sort by, eye = hide, drag = reorder, ⚙ = edit · drag a header edge to resize, double-click it to auto-fit</span></div>
 </div>
 </div>
-<div id="notice" role="status" aria-live="polite"></div>
 <div id="guide" class="guide"></div>
 <main><div class="tableRegion" role="region" aria-label="Speed comparison table; scroll for more rows and columns" tabindex="0"><table id="tbl" aria-label="Pokémon Speed tiers"><thead></thead><tbody></tbody></table></div></main>
-<footer id="foot"></footer>
+</section>
+<details class="dataDetails"><summary>Data & calculation details</summary><footer id="foot"></footer></details>
+</div>
 <div id="modalHost"></div>
 
 <script type="application/json" id="data">/*__DATA__*/</script>
@@ -242,7 +262,7 @@ function defaultState() {
     rows: DATA.entities.map(e => ({ id: uid(), ent: e.id, tags: [], ov: {} })),
     anchors: [], targets: [],
     filters: { tags: [], mode: 'any', search: '', onlyTagged: false, megas: true },
-    theme: 'auto', colWidths: {},
+    theme: 'auto', colWidths: {}, compare: StateModel.defaultCompare(DATA),
   };
 }
 let startupMessage = '';
@@ -317,7 +337,7 @@ function toggleTarget(rowId, colId) { const t = targetAt(rowId, colId); if (t) S
 const $ = id => document.getElementById(id);
 function render() {
   document.documentElement.dataset.theme = S.theme === 'auto' ? '' : S.theme;
-  renderHeader(); renderToolbar(); renderTable(); renderDock(); renderGuide();
+  renderHeader(); renderToolbar(); renderTable(); renderDock(); renderGuide(); renderCompare();
   $('regulation').textContent = DATA.meta.regulation; $('setupName').textContent = S.name;
   $('foot').innerHTML = `Data: Regulation ${esc(DATA.meta.regulation)} · ${esc(DATA.meta.dataVersion)} · rev ${esc(DATA.meta.dataRevision)} · ${DATA.meta.species} species + ${DATA.meta.megas} Megas · built ${esc(DATA.meta.built)} from champions-logic. Speed = ⌊(Base+20+SP)×Alignment⌋ then stage → ability → item → Tailwind → paralysis, flooring after each. Row facts (tags, overrides) override column presets for the fields they set.`;
 }
@@ -669,11 +689,15 @@ function setupsModal() {
     });
 }
 async function shareSetup() {
+  if (location.protocol === 'file:') {
+    modal(`<h2><span>Share an offline comparison</span><button data-close>Close</button></h2><p>Export this setup as JSON and send the file. The recipient can import it into their copy of the app. Web links are available when the app is hosted.</p><button id="offlineShareExport" class="on">Export setup</button>`, m => { m.querySelector('#offlineShareExport').onclick = exportJSON; });
+    return;
+  }
   const button = $('btnShare'); button.disabled = true;
   try {
     const snapshot = StateModel.normalize(S, DATA).state;
     const code = await ShareCodec.encode(StateModel.pack(snapshot));
-    const base = location.protocol === 'file:' ? 'https://pizzacatz.github.io/speed-tiers/' : location.href.split('#')[0];
+    const base = location.href.split('#')[0];
     const link = base + '#setup=' + code;
     modal(`<h2><span>Share this comparison</span><button data-close>✕</button></h2>
       <p>This link includes “${esc(snapshot.name)}”, its rows, anchors, targets, tags, and field settings. Anyone with the link can load this snapshot. Later edits do not change the link.</p>
@@ -766,8 +790,9 @@ $('dock').addEventListener('dragover', ev => { const card = ev.target.closest('.
 $('dock').addEventListener('dragleave', ev => { const card = ev.target.closest('.acard'); if (card) card.classList.remove('dragover'); });
 $('dock').addEventListener('drop', ev => { const card = ev.target.closest('.acard'); if (!card || !dragAnchor) return; ev.preventDefault(); const from = S.anchors.findIndex(a => a.id === dragAnchor), to = S.anchors.findIndex(a => a.id === card.dataset.anchor); dragAnchor = null; if (from < 0 || to < 0 || from === to) return; const [a] = S.anchors.splice(from, 1); S.anchors.splice(to, 0, a); commit(); });
 $('dock').addEventListener('dragend', () => { dragAnchor = null; $('dock').querySelectorAll('.dragover').forEach(x => x.classList.remove('dragover')); });
-document.addEventListener('keydown', ev => { if (ev.key === '?' && !/input|select|textarea/i.test(document.activeElement.tagName)) { ev.preventDefault(); helpModal(); } if (ev.key === '/' && !/input|select|textarea/i.test(document.activeElement.tagName)) { ev.preventDefault(); $('search').focus(); } if (ev.key === 'Escape' && $('modalHost').firstElementChild) { ev.preventDefault(); closeModal(); } });
+document.addEventListener('keydown', ev => { if (ev.key === '?' && !/input|select|textarea/i.test(document.activeElement.tagName)) { ev.preventDefault(); helpModal(); } if (ev.key === '/' && !/input|select|textarea/i.test(document.activeElement.tagName)) { ev.preventDefault(); $(S.compare.view === 'compare' ? 'cmpSearch' : 'search').focus(); } if (ev.key === 'Escape' && $('modalHost').firstElementChild) { ev.preventDefault(); closeModal(); } });
 
+/*__COMPARE_JS__*/
 render();
 if (startupMessage) notify(startupMessage);
 loadShareLink();

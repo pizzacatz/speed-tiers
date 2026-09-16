@@ -102,3 +102,10 @@ test('data refresh is complete and aligns with MCP revision', () => {
   for(const e of data.entities){assert(Number.isInteger(e.spe));assert(e.allAbil.length);for(const a of e.abil)assert(data.abilities[a]);}
 });
 module.exports={fixture};
+test('focused comparison settings are validated along with imports', () => {
+  const input=fixture();input.compare=State.defaultCompare(data);
+  input.compare.mine.spec={sp:13,align:-1,item:'ironball'};input.compare.opponent.ent='jolteon';
+  assert.deepEqual(State.normalize(input,data).state.compare,input.compare);
+  input.compare.mine.spec.sp=99;assert.throws(()=>State.normalize(input,data));
+  input.compare.mine.spec.sp=13;input.compare.opponent.ent='unknown';assert.throws(()=>State.normalize(input,data));
+});

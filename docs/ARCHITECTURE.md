@@ -87,3 +87,12 @@ status(a, t)      = relation(anchorSpeed(a), targetCalc(t)) + Engine.solve(...) 
 ## Validation
 
 `npm test` runs original engine vectors, fresh MCP fixtures in `test/mcp-vectors.json`, migration and hostile-input checks, bounded share-codec round trips, and jsdom integration tests. jsdom verifies interaction wiring, not physical browser layout or native dialog focus trapping. GitHub Pages builds and runs these checks before deploying the committed standalone HTML.
+
+## Focused Compare workspace (redesign branch)
+
+`src/compare.js` and `src/compare.css` are inlined into the existing standalone app by `build.py`.
+`S.compare` holds `{view, search, preset, mine:{ent,spec}, opponent:{ent,spec}}`; omitted state in old
+exports receives `StateModel.defaultCompare`. Both sets use `Engine.compute` and `Engine.solve`,
+with side A for mine and B for opponent. Field settings are shared with Full tiers, while each
+workspace retains its own sets and rows. Roster selection uses native buttons and updates the
+inspector without replacing the roster or moving keyboard focus. Hover has no state-changing handler.

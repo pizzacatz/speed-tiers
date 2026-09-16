@@ -11,6 +11,10 @@ const StateModel = (() => {
   const color = v => typeof v === 'string' && /^#[a-f0-9]{6}$/i.test(v) ? v : fail('Invalid color.');
   const unique = (list, name) => { if (new Set(list.map(x => x.id)).size !== list.length) fail(`Duplicate ${name} identifiers.`); return list; };
   const COLORS = ['#a78bfa', '#34d399', '#f59e0b', '#38bdf8'];
+  function defaultCompare(data) {
+    const pick = preferred => data.entities.find(e => e.id === preferred)?.id || data.entities[0].id;
+    return {view:'compare', search:'', preset:'max', mine:{ent:pick('garchomp'),spec:{sp:32,align:1}}, opponent:{ent:pick('lucariomegaz'),spec:{sp:32,align:1}}};
+  }
 
   function normalize(input, data) {
     obj(input, 'Setup');
@@ -83,6 +87,12 @@ const StateModel = (() => {
       id(k); widths[k] = integer(v, 40, 2000);
     }
     const sortCol = columns.find(c => c.id === input.sortCol && c.visible)?.id ?? columns.find(c => c.visible).id;
+    const comparison = obj(input.compare ?? defaultCompare(data), 'Comparison');
+    const combatant = value => {
+      obj(value, 'Compared Pokémon');
+      if (!entities.has(id(value.ent))) fail('The compared Pokémon is not available in this roster.');
+      return {ent:value.ent, spec:spec(value.spec)};
+    };
     const state = {
       v: 2, catalogue: data.entities.map(e => e.id), dataRevision: data.meta.dataRevision,
       name: str(input.name ?? 'Untitled setup', 'Setup name', 80),
@@ -90,7 +100,8 @@ const StateModel = (() => {
       global: spec(input.global), columns, sortCol, tags, rows, anchors, targets,
       filters: {search: str(filters.search, 'Search', 160), tags: tagList(filters.tags), mode: choice(filters.mode, ['any', 'all']), onlyTagged: bool(filters.onlyTagged), megas: bool(filters.megas)},
       theme: choice(input.theme, ['auto', 'dark', 'light']), colWidths: widths,
-      guideDismissed: bool(input.guideDismissed ?? false)
+      guideDismissed: bool(input.guideDismissed ?? false),
+      compare:{view:choice(comparison.view,['compare','tiers']), search:str(comparison.search,'Roster search',160), preset:choice(comparison.preset,['max','base','min','scarf','custom']), mine:combatant(comparison.mine), opponent:combatant(comparison.opponent)}
     };
     return {state, warnings: [...new Set(warnings)]};
   }
@@ -108,7 +119,7 @@ const StateModel = (() => {
       return {id: r[0], ent: r[1], tags: r[2], ov: r[3]};
     })}, data);
   }
-  return {normalize, pack, unpack};
+  return {normalize, pack, unpack, defaultCompare};
 })();
 if (typeof module !== 'undefined') module.exports = StateModel;
 

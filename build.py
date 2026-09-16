@@ -11,7 +11,9 @@ def build():
     blob = json.dumps(data, separators=(',', ':'), ensure_ascii=False).replace('</', '<\\/')
     output = (ROOT / 'src/app.html').read_text()
     for marker, content in [('DATA', blob), ('ENGINE', (ROOT / 'src/engine.js').read_text()),
-                            ('STATE', (ROOT / 'src/state.js').read_text())]:
+                            ('STATE', (ROOT / 'src/state.js').read_text()),
+                            ('COMPARE_CSS', (ROOT / 'src/compare.css').read_text()),
+                            ('COMPARE_JS', (ROOT / 'src/compare.js').read_text())]:
         output = output.replace('/*__' + marker + '__*/', content)
     return output
 

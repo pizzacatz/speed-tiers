@@ -1,5 +1,8 @@
 # Champions Speed Tiers
 
+> **Redesign branch:** this checkout introduces the focused Compare workspace. Open `speed-tiers.html`
+> locally to try it. The public site still runs `master`; see [redesign notes](docs/REDESIGN.md).
+
 A single-file, fully offline speed-tier calculator for **Pokémon Champions (Regulation M-C)**.
 
 **Use it online:** [Champions Speed Tiers](https://pizzacatz.github.io/speed-tiers/).
