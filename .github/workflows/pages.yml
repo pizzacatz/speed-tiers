@@ -26,8 +26,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Check speed engine
-        run: node test/engine.test.js
+      - name: Install test dependencies
+        run: npm ci
+      - name: Build and verify committed app
+        run: |
+          python3 build.py
+          git diff --exit-code -- speed-tiers.html
+      - name: Check calculations, migrations, sharing, and UI
+        run: npm test
       - name: Prepare standalone app
         run: |
           mkdir -p _site

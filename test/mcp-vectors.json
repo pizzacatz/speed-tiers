@@ -1,0 +1,298 @@
+{
+  "dataRevision": "b69c0ab9992b61c7",
+  "source": "champions-logic MCP speed_order and ability_info",
+  "cases": [
+    {
+      "name": "Z Mega speed tie in Trick Room",
+      "a": {
+        "species": "garchompmegaz",
+        "sp": {
+          "spe": 32
+        },
+        "alignment": "Jolly"
+      },
+      "b": {
+        "species": "lucariomegaz",
+        "sp": {
+          "spe": 32
+        },
+        "alignment": "Timid"
+      },
+      "field": {
+        "trick_room": true
+      },
+      "expected": {
+        "first": "tie",
+        "a_speed": 223,
+        "b_speed": 223,
+        "decided_by": "tie",
+        "priority": {
+          "a": 0,
+          "b": 0
+        },
+        "trick_room": true,
+        "applied": {
+          "a": [
+            "Mega (Garchomp-Mega-Z)",
+            "Stat Alignment Jolly (×1.1)"
+          ],
+          "b": [
+            "Mega (Lucario-Mega-Z)",
+            "Stat Alignment Timid (×1.1)"
+          ]
+        },
+        "assumptions": [
+          "Choice Scarf is derived from the held `item` (or the `scarf` flag); Tailwind, paralysis, and weather-speed abilities are taken from the provided flags.",
+          "Speed modifiers apply in order: stage -> speed_mult(ability) -> Choice Scarf -> Tailwind -> paralysis, flooring after each.",
+          "Equal final Speed is reported as a tie (the engine breaks it randomly)."
+        ],
+        "unmodeled_effects": [],
+        "notes": []
+      }
+    },
+    {
+      "name": "Priority wins despite Trick Room and stacked modifiers",
+      "a": {
+        "species": "garchomp",
+        "sp": {
+          "spe": 32
+        },
+        "alignment": "Jolly",
+        "stage": 1,
+        "scarf": true,
+        "tailwind": true,
+        "paralyzed": true
+      },
+      "b": {
+        "species": "garchomp",
+        "priority": 1,
+        "sp": {
+          "spe": 0
+        }
+      },
+      "field": {
+        "trick_room": true
+      },
+      "expected": {
+        "first": "b",
+        "a_speed": 379,
+        "b_speed": 122,
+        "decided_by": "priority",
+        "priority": {
+          "a": 0,
+          "b": 1
+        },
+        "trick_room": true,
+        "applied": {
+          "a": [
+            "Stat Alignment Jolly (×1.1)",
+            "Speed stage +1",
+            "Choice Scarf ×1.5",
+            "Tailwind ×2",
+            "paralysis ×0.5"
+          ],
+          "b": []
+        },
+        "assumptions": [
+          "Choice Scarf is derived from the held `item` (or the `scarf` flag); Tailwind, paralysis, and weather-speed abilities are taken from the provided flags.",
+          "Speed modifiers apply in order: stage -> speed_mult(ability) -> Choice Scarf -> Tailwind -> paralysis, flooring after each.",
+          "Equal final Speed is reported as a tie (the engine breaks it randomly)."
+        ],
+        "unmodeled_effects": [],
+        "notes": []
+      }
+    },
+    {
+      "name": "New Mega Salamence",
+      "a": {
+        "species": "salamencemega",
+        "sp": {
+          "spe": 32
+        },
+        "alignment": "Jolly"
+      },
+      "b": {
+        "species": "golisopodmega",
+        "sp": {
+          "spe": 0
+        },
+        "alignment": "Brave"
+      },
+      "field": {},
+      "expected": {
+        "first": "a",
+        "a_speed": 189,
+        "b_speed": 54,
+        "decided_by": "speed",
+        "priority": {
+          "a": 0,
+          "b": 0
+        },
+        "trick_room": false,
+        "applied": {
+          "a": [
+            "Mega (Salamence-Mega)",
+            "Stat Alignment Jolly (×1.1)"
+          ],
+          "b": [
+            "Mega (Golisopod-Mega)",
+            "Stat Alignment Brave (×0.9)"
+          ]
+        },
+        "assumptions": [
+          "Choice Scarf is derived from the held `item` (or the `scarf` flag); Tailwind, paralysis, and weather-speed abilities are taken from the provided flags.",
+          "Speed modifiers apply in order: stage -> speed_mult(ability) -> Choice Scarf -> Tailwind -> paralysis, flooring after each.",
+          "Equal final Speed is reported as a tie (the engine breaks it randomly)."
+        ],
+        "unmodeled_effects": [],
+        "notes": []
+      }
+    },
+    {
+      "name": "Rain speed multiplier floors after a negative stage",
+      "a": {
+        "species": "basculegion",
+        "sp": {
+          "spe": 32
+        },
+        "alignment": "Jolly",
+        "stage": -1,
+        "speed_mult": 2
+      },
+      "b": {
+        "species": "baxcaliburmega",
+        "sp": {
+          "spe": 32
+        },
+        "alignment": "Jolly"
+      },
+      "field": {},
+      "expected": {
+        "first": "a",
+        "a_speed": 190,
+        "b_speed": 152,
+        "decided_by": "speed",
+        "priority": {
+          "a": 0,
+          "b": 0
+        },
+        "trick_room": false,
+        "applied": {
+          "a": [
+            "Stat Alignment Jolly (×1.1)",
+            "Speed stage -1",
+            "speed_mult ×2"
+          ],
+          "b": [
+            "Mega (Baxcalibur-Mega)",
+            "Stat Alignment Jolly (×1.1)"
+          ]
+        },
+        "assumptions": [
+          "Choice Scarf is derived from the held `item` (or the `scarf` flag); Tailwind, paralysis, and weather-speed abilities are taken from the provided flags.",
+          "Speed modifiers apply in order: stage -> speed_mult(ability) -> Choice Scarf -> Tailwind -> paralysis, flooring after each.",
+          "Equal final Speed is reported as a tie (the engine breaks it randomly)."
+        ],
+        "unmodeled_effects": [],
+        "notes": []
+      }
+    },
+    {
+      "name": "Quick Feet ignores paralysis (ability_info ruling; pass multiplier without penalty)",
+      "a": {
+        "species": "jolteon",
+        "sp": {
+          "spe": 32
+        },
+        "alignment": "Timid",
+        "speed_mult": 1.5
+      },
+      "b": {
+        "species": "garchompmegaz",
+        "sp": {
+          "spe": 32
+        },
+        "alignment": "Jolly"
+      },
+      "field": {},
+      "appA": {
+        "abil": "quick-feet",
+        "para": true
+      },
+      "expected": {
+        "first": "a",
+        "a_speed": 300,
+        "b_speed": 223,
+        "decided_by": "speed",
+        "priority": {
+          "a": 0,
+          "b": 0
+        },
+        "trick_room": false,
+        "applied": {
+          "a": [
+            "Stat Alignment Timid (×1.1)",
+            "speed_mult ×1.5"
+          ],
+          "b": [
+            "Mega (Garchomp-Mega-Z)",
+            "Stat Alignment Jolly (×1.1)"
+          ]
+        },
+        "assumptions": [
+          "Choice Scarf is derived from the held `item` (or the `scarf` flag); Tailwind, paralysis, and weather-speed abilities are taken from the provided flags.",
+          "Speed modifiers apply in order: stage -> speed_mult(ability) -> Choice Scarf -> Tailwind -> paralysis, flooring after each.",
+          "Equal final Speed is reported as a tie (the engine breaks it randomly)."
+        ],
+        "unmodeled_effects": [],
+        "notes": []
+      }
+    },
+    {
+      "name": "Lower speed acts first within Trick Room",
+      "a": {
+        "species": "rillaboom",
+        "sp": {
+          "spe": 0
+        },
+        "alignment": "Brave"
+      },
+      "b": {
+        "species": "indeedeef",
+        "sp": {
+          "spe": 32
+        },
+        "alignment": "Timid"
+      },
+      "field": {
+        "trick_room": true
+      },
+      "expected": {
+        "first": "a",
+        "a_speed": 94,
+        "b_speed": 150,
+        "decided_by": "trick_room",
+        "priority": {
+          "a": 0,
+          "b": 0
+        },
+        "trick_room": true,
+        "applied": {
+          "a": [
+            "Stat Alignment Brave (×0.9)"
+          ],
+          "b": [
+            "Stat Alignment Timid (×1.1)"
+          ]
+        },
+        "assumptions": [
+          "Choice Scarf is derived from the held `item` (or the `scarf` flag); Tailwind, paralysis, and weather-speed abilities are taken from the provided flags.",
+          "Speed modifiers apply in order: stage -> speed_mult(ability) -> Choice Scarf -> Tailwind -> paralysis, flooring after each.",
+          "Equal final Speed is reported as a tie (the engine breaks it randomly)."
+        ],
+        "unmodeled_effects": [],
+        "notes": []
+      }
+    }
+  ]
+}

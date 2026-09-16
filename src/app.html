@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Champions Speed Tiers</title>
+<meta name="description" content="Compare Pokémon Champions Speed tiers, plan teams, and share matchups with Regulation M-C data.">
 <style>
 :root{
   --bg:#f5f6f8;--bg2:#ffffff;--bg3:#eceef2;--fg:#1b1e24;--fg2:#5b6270;--line:#d9dde4;
@@ -81,8 +82,8 @@ tbody tr.divider td{background:var(--anchor);color:#fff;text-align:center;font-w
 .badge.slower{color:var(--slower);background:color-mix(in srgb,var(--slower) 14%,transparent)}
 .badge.tie{color:var(--tie);background:color-mix(in srgb,var(--tie) 16%,transparent)}
 .badge.self{color:var(--anchor)}
-.rowactions button{visibility:hidden}
-tr:hover .rowactions button{visibility:visible}
+.rowactions button{visibility:visible}
+.rowactions{position:sticky;right:0;background:var(--bg2);z-index:2}
 /* dock */
 #dock{background:var(--anchorbg);border-bottom:2px solid var(--anchor);padding:4px 14px 6px;display:flex;flex-direction:column;gap:4px;max-height:52vh;overflow:auto}
 .dockhead{display:flex;gap:8px 14px;flex-wrap:wrap;align-items:center;font-size:12px}
@@ -115,7 +116,7 @@ tbody tr.divider td{background:var(--dcol,var(--anchor))}
 #solve b{color:var(--fg)}
 /* modal */
 .modalbg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:40px 12px;overflow:auto}
-.modal{background:var(--bg2);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:16px 18px;min-width:340px;max-width:720px;width:100%}
+.modal{color:var(--fg);border:1px solid var(--line);background:var(--bg2);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:16px 18px;min-width:0;max-width:720px;width:calc(100% - 24px);max-height:calc(100dvh - 32px);overflow:auto}
 .modal h2{margin:0 0 10px;font-size:16px;display:flex;justify-content:space-between;align-items:center}
 .modal h3{margin:14px 0 6px;font-size:13px;color:var(--fg2);text-transform:uppercase;letter-spacing:.04em}
 .frow{display:flex;gap:10px 16px;flex-wrap:wrap;align-items:flex-end;margin:6px 0}
@@ -130,28 +131,55 @@ tbody tr.divider td{background:var(--dcol,var(--anchor))}
 footer{padding:14px;color:var(--fg2);font-size:11px}
 kbd{border:1px solid var(--line);border-radius:4px;padding:0 4px;font-size:11px;background:var(--bg3)}
 .help{cursor:help;border-bottom:1px dotted var(--fg2)}
-@media (max-width:800px){.badge{min-width:60px}}
+.modal::backdrop{background:rgba(0,0,0,.55)}
+button:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button:disabled{opacity:.5;cursor:not-allowed}
+.name,.cellButton,.sortButton{background:transparent;border:0;padding:2px 0;color:inherit;font:inherit}
+.name{font-weight:600;text-align:left}.cellButton{width:100%;min-width:34px;text-align:right}.sortButton{font-weight:600}
+.colchip button{border:0;background:transparent;padding:2px 4px;font-size:inherit}
+.guide{margin:10px 14px;padding:12px 16px;border:1px solid var(--acc);border-radius:8px;background:var(--acc2);display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.guide p{margin:3px 0}.guide .stepsline{display:flex;gap:8px 20px;flex-wrap:wrap}.guide .done{color:var(--faster);font-weight:600}
+#notice{margin:8px 14px;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--bg2)}
+#notice:empty{display:none}
+.setupName{max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tableRegion{overflow:auto;max-height:75vh;border:1px solid var(--line);border-radius:8px}
+.tableRegion thead th{top:0}
+main{padding-top:10px}.tableRegion table{min-width:100%}
+.list button.it{width:100%;text-align:left;background:transparent;border-radius:0}
+label input,textarea{max-width:100%}textarea{font:inherit;color:inherit;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px;width:100%}
+@media (max-width:800px){
+  .badge{min-width:60px}#top{position:static}#dock{max-height:45vh}
+  button,button.sm,input,select{min-height:40px}input[type=checkbox]{min-height:0}
+  header,.toolbar{padding:8px}.group{gap:6px}.toolbar{gap:10px}
+  main{padding:8px}.tableRegion{max-height:70vh}
+  .cellButton{min-width:44px}.rowactions button{min-width:40px}
+  .modal{padding:14px}.frow{gap:12px}.ctl{font-size:14px}
+  #dock{padding:8px}.guide{margin:8px}.colchip button{min-width:36px}
+}
 </style>
 </head>
 <body>
 <div id="top">
 <header>
-  <h1>⚡ Champions Speed Tiers</h1>
+  <h1>⚡ Champions Speed Tiers <span class="muted" id="regulation"></span></h1>
   <div class="group"><span class="lbl">Weather</span><span class="seg" id="weatherSeg"></span></div>
   <div class="group"><button id="btnET" title="Electric Terrain (Surge Surfer)">E-Terrain</button>
     <button id="btnTR" title="Trick Room: slower moves first">Trick Room</button></div>
   <div class="group"><span class="lbl">Tailwind</span><span class="seg"><button id="twA" title="Tailwind for side A (My Team)">Side A</button><button id="twB" title="Tailwind for side B (Opponent)">Side B</button></span></div>
   <div class="group" style="margin-left:auto">
-    <button id="btnTheme" class="sm" title="Toggle theme">◐</button>
+    <button id="btnTheme" aria-label="Change color theme" class="sm" title="Toggle theme">◐</button>
+    <button id="btnSetups" class="sm">Setups</button>
+    <button id="btnShare" class="sm">Share link</button>
+    <span class="setupName muted" id="setupName"></span>
     <button id="btnExport" class="sm">Export</button>
     <button id="btnImport" class="sm">Import</button>
     <button id="btnReset" class="sm danger">Reset</button>
-    <button id="btnHelp" class="sm">?</button>
+    <button id="btnHelp" aria-label="Help and getting started" class="sm">Help</button>
   </div>
 </header>
 <div id="dock"></div>
 <div class="toolbar">
-  <input type="search" id="search" placeholder="Search species…  ( / )" style="width:200px">
+  <input type="search" id="search" aria-label="Search species" maxlength="160" placeholder="Search species…  ( / )" style="width:200px">
   <button id="btnAdd" class="sm">+ Add row</button>
   <div class="group"><span class="lbl">Tags</span><span id="tagFilters"></span>
     <button id="btnTagMode" class="sm ghost" title="Filter mode">any</button>
@@ -162,12 +190,15 @@ kbd{border:1px solid var(--line);border-radius:4px;padding:0 4px;font-size:11px;
     <span class="muted" style="font-size:11px">click = sort by, eye = hide, drag = reorder, ⚙ = edit · drag a header edge to resize, double-click it to auto-fit</span></div>
 </div>
 </div>
-<main><table id="tbl"><thead></thead><tbody></tbody></table></main>
+<div id="notice" role="status" aria-live="polite"></div>
+<div id="guide" class="guide"></div>
+<main><div class="tableRegion" role="region" aria-label="Speed comparison table; scroll for more rows and columns" tabindex="0"><table id="tbl" aria-label="Pokémon Speed tiers"><thead></thead><tbody></tbody></table></div></main>
 <footer id="foot"></footer>
 <div id="modalHost"></div>
 
 <script type="application/json" id="data">/*__DATA__*/</script>
 <script>/*__ENGINE__*/</script>
+<script>/*__STATE__*/</script>
 <script>
 (() => {
 'use strict';
@@ -204,7 +235,7 @@ function defaultTags() {
 }
 function defaultState() {
   return {
-    v: 1, field: { weather: null, eterrain: false, trickRoom: false, tailwind: { A: false, B: false } },
+    v: 2, name: 'Untitled setup', catalogue: DATA.entities.map(e => e.id), dataRevision: DATA.meta.dataRevision, guideDismissed: false, field: { weather: null, eterrain: false, trickRoom: false, tailwind: { A: false, B: false } },
     global: {}, columns: defaultColumns(), sortCol: 'max', tags: defaultTags(),
     rows: DATA.entities.map(e => ({ id: uid(), ent: e.id, tags: [], ov: {} })),
     anchors: [], targets: [],
@@ -212,14 +243,47 @@ function defaultState() {
     theme: 'auto', colWidths: {},
   };
 }
+let startupMessage = '';
+let recoveryBlocked = false;
 let S = load();
 function load() {
-  try { const s = JSON.parse(localStorage.getItem(LS)); if (s && s.v === 1) { // drop rows for entities that no longer exist
-      s.rows = s.rows.filter(r => ENT[r.ent]); s.anchors = s.anchors.filter(a => s.rows.some(r => r.id === a.rowId)); s.colWidths = s.colWidths || {}; s.targets = (s.targets || []).filter(t => ENT[t.ent]); s.anchors.forEach((a, i) => { a.color = a.color || ANCHOR_COLORS[i % ANCHOR_COLORS.length]; }); return s; } } catch (e) {}
+  try {
+    const raw = localStorage.getItem(LS);
+    if (raw) { const loaded = StateModel.normalize(JSON.parse(raw), DATA); startupMessage = loaded.warnings.join(' '); return loaded.state; }
+  } catch (e) {
+    recoveryBlocked = true;
+    try { const raw = localStorage.getItem(LS); if (raw) localStorage.setItem(LS + '.recovery', raw); recoveryBlocked = false; } catch (_) {}
+    startupMessage = 'Your saved setup could not be loaded. ' + (recoveryBlocked ? 'Automatic saving is paused to protect your original data. Use Export to keep changes.' : 'The original data is preserved in the browser recovery backup.') + ' ' + e.message;
+  }
   return defaultState();
 }
-let saveT; function save() { clearTimeout(saveT); saveT = setTimeout(() => localStorage.setItem(LS, JSON.stringify(S)), 150); }
-function commit() { save(); render(); }
+function notify(message) { document.getElementById('notice').textContent = message; }
+let saveT;
+function flushSave() {
+  clearTimeout(saveT);
+  if (recoveryBlocked) return;
+  try { localStorage.setItem(LS, JSON.stringify(S)); }
+  catch (e) { notify('Browser storage is unavailable or full. Your changes are still open; use Export to keep a backup.'); }
+}
+function save() { clearTimeout(saveT); saveT = setTimeout(flushSave, 150); }
+window.addEventListener('pagehide', flushSave);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushSave(); });
+function focusKey(el) {
+  if (!el || el === document.body) return null;
+  if (el.id) return '#' + CSS.escape(el.id);
+  const parent = el.closest('[data-row],[data-anchor],[data-col].colchip,[data-target]');
+  const attr = parent && ['row','anchor','col','target'].find(k => parent.dataset[k]);
+  const prefix = attr ? `[data-${attr}="${parent.dataset[attr]}"] ` : '';
+  for (const k of ['act','k','tag','sort','w']) if (el.dataset[k] !== undefined) return prefix + `[data-${k}="${CSS.escape(el.dataset[k])}"]`;
+  const cell = el.closest('td[data-col]');
+  if (cell) return prefix + `td[data-col="${cell.dataset.col}"] button`;
+  return null;
+}
+function commit() {
+  const key = focusKey(document.activeElement);
+  save(); render();
+  if (key) document.querySelector(key)?.focus({preventScroll:true});
+}
 
 // ---------- resolution ----------
 const tagById = id => S.tags.find(t => t.id === id);
@@ -236,36 +300,38 @@ function anchorSpecInit(row) { return Engine.merge(S.global, sortColumn().spec, 
 function anchorCalc(a) { const row = S.rows.find(r => r.id === a.rowId); return row ? Engine.compute(ENT[row.ent], Engine.merge(a.spec), S.field, AB) : null; }
 function nextColor() { const used = new Set(S.anchors.map(a => a.color)); return ANCHOR_COLORS.find(c => !used.has(c)) || ANCHOR_COLORS[S.anchors.length % ANCHOR_COLORS.length]; }
 function anchorList() { return S.anchors.map(a => ({ a, c: anchorCalc(a), row: S.rows.find(r => r.id === a.rowId) })).filter(x => x.c); }
-function targetCalc(t) { return Engine.compute(ENT[t.ent], Engine.merge(t.spec), S.field, AB); }
+function targetCalc(t) { return Engine.compute(ENT[t.ent], Engine.merge(t.spec), {weather:null, eterrain:false, tailwind:{A:false,B:false}}, AB); }
 const targetAt = (rowId, colId) => S.targets.find(t => t.rowId === rowId && t.colId === colId);
 /** Snapshot a cell as a target: resolve field-dependent bits (ability/tailwind) into the spec so the value is stable. */
 function makeTarget(row, col) {
   const e = ENT[row.ent]; const sp = specFor(row, col); const ab = Engine.activeAbility(e, sp, S.field, AB); const tw = Engine.tailwindOn(sp, S.field);
-  const spec = { ...sp, abil: ab ? 'on' : 'off', tailwind: tw, side: null };
+  const spec = { ...sp, abil: ab ? ab.slug : 'off', tailwind: tw, side: null };
   const notes = []; if (ab) notes.push(AB[ab.slug].name); if (tw) notes.push('Tailwind');
   return { id: uid(), ent: row.ent, rowId: row.id, colId: col.id, label: `${e.name} · ${col.label}${notes.length ? ' · ' + notes.join('/') : ''}`, spec };
 }
-function toggleTarget(rowId, colId) { const t = targetAt(rowId, colId); if (t) S.targets = S.targets.filter(x => x.id !== t.id); else { const row = S.rows.find(r => r.id === rowId), col = S.columns.find(c => c.id === colId); if (row && col) S.targets.push(makeTarget(row, col)); } commit(); }
+function toggleTarget(rowId, colId) { const t = targetAt(rowId, colId); if (t) S.targets = S.targets.filter(x => x.id !== t.id); else { const row = S.rows.find(r => r.id === rowId), col = S.columns.find(c => c.id === colId); if (S.targets.length >= 64) { notify('You can keep up to 64 targets.'); return; } if (row && col) S.targets.push(makeTarget(row, col)); } commit(); }
 
 // ---------- render ----------
 const $ = id => document.getElementById(id);
 function render() {
   document.documentElement.dataset.theme = S.theme === 'auto' ? '' : S.theme;
-  renderHeader(); renderToolbar(); renderTable(); renderDock();
+  renderHeader(); renderToolbar(); renderTable(); renderDock(); renderGuide();
+  $('regulation').textContent = DATA.meta.regulation; $('setupName').textContent = S.name;
   $('foot').innerHTML = `Data: Regulation ${esc(DATA.meta.regulation)} · ${esc(DATA.meta.dataVersion)} · rev ${esc(DATA.meta.dataRevision)} · ${DATA.meta.species} species + ${DATA.meta.megas} Megas · built ${esc(DATA.meta.built)} from champions-logic. Speed = ⌊(Base+20+SP)×Alignment⌋ then stage → ability → item → Tailwind → paralysis, flooring after each. Row facts (tags, overrides) override column presets for the fields they set.`;
 }
 function renderHeader() {
   const f = S.field;
   $('weatherSeg').innerHTML = [['', 'None'], ['sun', '☀ Sun'], ['rain', '🌧 Rain'], ['sand', '🏜 Sand'], ['snow', '❄ Snow']]
-    .map(([v, l]) => `<button data-w="${v}" class="${(f.weather || '') === v ? 'on' : ''}">${l}</button>`).join('');
+    .map(([v, l]) => `<button data-w="${v}" aria-pressed="${(f.weather || '') === v}" class="${(f.weather || '') === v ? 'on' : ''}">${l}</button>`).join('');
+  for (const [id, on] of [['btnET',f.eterrain],['btnTR',f.trickRoom],['twA',f.tailwind.A],['twB',f.tailwind.B]]) $(id).setAttribute('aria-pressed', String(on));
   $('btnET').className = f.eterrain ? 'on' : ''; $('btnTR').className = f.trickRoom ? 'on' : '';
   $('twA').className = f.tailwind.A ? 'on' : ''; $('twB').className = f.tailwind.B ? 'on' : '';
 }
 function renderToolbar() {
-  $('tagFilters').innerHTML = S.tags.map(t => `<span class="tagchip ${S.filters.tags.includes(t.id) ? 'on' : ''}" data-tag="${t.id}"><span class="dot" style="background:${t.color}"></span>${esc(t.name)} <span class="muted">${S.rows.filter(r => r.tags.includes(t.id)).length}</span></span>`).join(' ');
+  $('tagFilters').innerHTML = S.tags.map(t => `<button type="button" aria-pressed="${S.filters.tags.includes(t.id)}" class="tagchip ${S.filters.tags.includes(t.id) ? 'on' : ''}" data-tag="${t.id}"><span class="dot" style="background:${t.color}"></span>${esc(t.name)} <span class="muted">${S.rows.filter(r => r.tags.includes(t.id)).length}</span></button>`).join(' ');
   $('btnTagMode').textContent = S.filters.mode; $('chkMegas').checked = S.filters.megas; $('chkOnlyTagged').checked = S.filters.onlyTagged;
   if ($('search').value !== S.filters.search) $('search').value = S.filters.search;
-  $('colChips').innerHTML = S.columns.map(c => `<span class="colchip ${c.visible ? '' : 'hidden'} ${c.id === S.sortCol ? 'sort' : ''}" draggable="true" data-col="${c.id}" title="${esc(specSummary(c.spec))}"><span class="x" data-act="eye" title="show/hide">${c.visible ? '👁' : '◌'}</span><span data-act="sort">${esc(c.label)}</span><span class="x" data-act="edit" title="edit">⚙</span></span>`).join('');
+  $('colChips').innerHTML = S.columns.map(c => `<span class="colchip ${c.visible ? '' : 'hidden'} ${c.id === S.sortCol ? 'sort' : ''}" draggable="true" data-col="${c.id}" title="${esc(specSummary(c.spec))}"><button class="x" data-act="eye" aria-label="${c.visible ? 'Hide' : 'Show'} ${esc(c.label)} column" aria-pressed="${c.visible}">${c.visible ? '👁' : '◌'}</button><button data-act="sort">${esc(c.label)}</button><button class="x" data-act="edit" aria-label="Edit ${esc(c.label)} column">⚙</button></span>`).join('');
 }
 function specSummary(sp) {
   const p = [];
@@ -292,11 +358,11 @@ function renderTable() {
   const rows = visibleRows().map(r => { const cells = {}; for (const c of cols) cells[c.id] = calc(r, c); const key = cells[sc.id] || calc(r, sc); return { r, cells, key }; });
   rows.sort((a, b) => Engine.comparator(tr)(a.key, b.key) || ENT[a.r.ent].name.localeCompare(ENT[b.r.ent].name));
   const cmp = Engine.comparator(tr);
-  const W = k => S.colWidths[k] ? ` style="width:${S.colWidths[k]}px;min-width:${S.colWidths[k]}px;max-width:${S.colWidths[k]}px"` : '';
+  const W = (k, extra = '') => (S.colWidths[k] || extra) ? ` style="${extra}${S.colWidths[k] ? `width:${S.colWidths[k]}px;min-width:${S.colWidths[k]}px;max-width:${S.colWidths[k]}px` : ''}"` : '';
   const RZ = k => `<span class="rz" data-rz="${k}" title="Drag to resize · double-click to auto-fit"></span>`;
-  const NC = cols.length + ancs.length + 3;
-  let h = `<tr><th class="l" data-key="name"${W('name')}>Pokémon${RZ('name')}</th><th class="l" data-key="tags"${W('tags')}>Tags${RZ('tags')}</th>` + cols.map(c => `<th data-sort="${c.id}" data-key="${c.id}"${W(c.id)} class="${c.id === sc.id ? 'sort' : ''}" title="${esc(specSummary(c.spec))} — click a cell to mark it as a target">${esc(c.label)}${RZ(c.id)}</th>`).join('') +
-    ancs.map(({ a, row }) => `<th data-key="vs_${a.id}"${W('vs_' + a.id)} style="color:${a.color}" title="Relative to this anchor at the sort column">vs ${esc(ENT[row.ent].name)}${RZ('vs_' + a.id)}</th>`).join('') + (ancs.length ? '' : `<th data-key="vs" class="muted" title="Pin an anchor (◆) to compare">vs anchor</th>`) + `<th></th></tr>`;
+  const NC = cols.length + Math.max(1, ancs.length) + 3;
+  let h = `<tr><th class="l" data-key="name"${W('name')}>Pokémon${RZ('name')}</th><th class="l" data-key="tags"${W('tags')}>Tags${RZ('tags')}</th>` + cols.map(c => `<th aria-sort="${c.id === sc.id ? (tr ? 'ascending' : 'descending') : 'none'}" data-sort="${c.id}" data-key="${c.id}"${W(c.id)} class="${c.id === sc.id ? 'sort' : ''}" title="${esc(specSummary(c.spec))} — click a cell to mark it as a target"><button class="sortButton" data-sort="${c.id}">${esc(c.label)}</button>${RZ(c.id)}</th>`).join('') +
+    ancs.map(({ a, row }) => `<th data-key="vs_${a.id}"${W('vs_' + a.id, `color:${a.color};`)} title="Relative to this anchor at the sort column">vs ${esc(ENT[row.ent].name)}${RZ('vs_' + a.id)}</th>`).join('') + (ancs.length ? '' : `<th data-key="vs" class="muted" title="Pin an anchor (◆) to compare">vs anchor</th>`) + `<th></th></tr>`;
   $('tbl').tHead.innerHTML = h;
   let out = [], band = false, lastSpeed = null, lastP = null; const pending = [...ancs];
   for (const { r, cells, key } of rows) {
@@ -304,15 +370,15 @@ function renderTable() {
     if (key.speed !== lastSpeed || key.priority !== lastP) { band = !band; lastSpeed = key.speed; lastP = key.priority; }
     const e = ENT[r.ent]; const own = ancs.find(x => x.a.rowId === r.id);
     const badges = ancs.map(({ a, c }) => { if (a.rowId === r.id) return `<td><span class="badge self" style="color:${a.color}">◆ anchor</span></td>`; const rl = Engine.relation(key, c, tr); const d = key.speed - c.speed; return `<td><span class="badge ${rl}">${rl === 'tie' ? 'speed tie' : rl === 'faster' ? 'outspeeds' : 'slower'} ${d > 0 ? '+' + d : d}</span></td>`; }).join('') + (ancs.length ? '' : '<td></td>');
-    out.push(`<tr class="${band ? 'band' : ''} ${own ? 'anchorrow' : ''}" data-row="${r.id}"${own ? ` style="--arow:${own.a.color}"` : ''}><td class="l ${S.colWidths.name ? 'clip' : ''}"${S.colWidths.name ? ` style="max-width:${S.colWidths.name}px"` : ''}>${sprite(e)}<span class="name" data-act="edit">${esc(e.name)}</span>${e.mega ? '<span class="mega">MEGA</span>' : ''}${e.types.map(t => `<span class="type" style="background:${TYPE_COLORS[t] || '#888'}">${t.slice(0, 3)}</span>`).join('')}${e.abil.length ? `<span class="muted" style="font-size:10px;margin-left:4px" title="Speed ability">${e.abil.map(a => AB[a].name).join('/')}</span>` : ''}</td>` +
+    out.push(`<tr class="${band ? 'band' : ''} ${own ? 'anchorrow' : ''}" data-row="${r.id}"${own ? ` style="--arow:${own.a.color}"` : ''}><td class="l ${S.colWidths.name ? 'clip' : ''}"${S.colWidths.name ? ` style="max-width:${S.colWidths.name}px"` : ''}>${sprite(e)}<button class="name" data-act="edit">${esc(e.name)}</button>${e.mega ? '<span class="mega">MEGA</span>' : ''}${e.types.map(t => `<span class="type" style="background:${TYPE_COLORS[t] || '#888'}">${t.slice(0, 3)}</span>`).join('')}${e.abil.length ? `<span class="muted" style="font-size:10px;margin-left:4px" title="Speed ability">${e.abil.map(a => AB[a].name).join('/')}</span>` : ''}</td>` +
       `<td class="l ${S.colWidths.tags ? 'clip' : ''}"${S.colWidths.tags ? ` style="max-width:${S.colWidths.tags}px"` : ''}>${r.tags.map(id => { const t = tagById(id); return t ? `<span class="tagchip mini" style="border-color:${t.color}"><span class="dot" style="background:${t.color}"></span>${esc(t.name)}</span>` : ''; }).join(' ')}${Object.keys(r.ov).length ? `<span class="tagchip mini" style="border-color:var(--anchor)" title="${esc(specSummary(r.ov))}">custom</span>` : ''}</td>` +
-      cols.map(c => { const v = cells[c.id]; const ok = overriddenKeys(r, c); const tg = targetAt(r.id, c.id); return `<td class="cell ${c.id === sc.id ? 'sortcol' : ''} ${tg ? 'target' : ''}" data-col="${c.id}" title="${esc(v.steps.map(s => `${s.label} → ${s.value}`).join('\n'))}${ok.length ? '\n(overridden: ' + ok.join(', ') + ')' : ''}\n${tg ? 'click to remove target' : 'click to mark as target'}">${tg ? '<span class="tg">🎯</span>' : ''}${v.priority ? `<span class="muted" style="font-size:10px">p${v.priority > 0 ? '+' : ''}${v.priority} </span>` : ''}${v.speed}${ok.length ? '<span class="ov">●</span>' : ''}</td>`; }).join('') +
-      badges + `<td class="rowactions"><button class="sm ghost" data-act="pin" title="Pin as anchor">◆</button><button class="sm ghost" data-act="dup" title="Duplicate row">⧉</button><button class="sm ghost" data-act="del" title="Remove row">✕</button></td></tr>`);
+      cols.map(c => { const v = cells[c.id]; const ok = overriddenKeys(r, c); const tg = targetAt(r.id, c.id); return `<td class="cell ${c.id === sc.id ? 'sortcol' : ''} ${tg ? 'target' : ''}" data-col="${c.id}" title="${esc(v.steps.map(s => `${s.label} → ${s.value}`).join('\n'))}${ok.length ? '\n(overridden: ' + ok.join(', ') + ')' : ''}\n${tg ? 'click to remove target' : 'click to mark as target'}"><button class="cellButton" aria-label="${esc(e.name)} · ${esc(c.label)}: ${v.speed}. ${tg ? 'Remove target' : 'Set target'}" aria-pressed="${!!tg}">${tg ? '<span class="tg">🎯</span>' : ''}${v.priority ? `<span class="muted" style="font-size:10px">p${v.priority > 0 ? '+' : ''}${v.priority} </span>` : ''}${v.speed}${ok.length ? '<span class="ov">●</span>' : ''}</button></td>`; }).join('') +
+      badges + `<td class="rowactions"><button class="sm ghost" data-act="pin" aria-label="Pin ${esc(e.name)} as anchor" title="Pin as anchor">◆</button><button class="sm ghost" data-act="dup" aria-label="Duplicate ${esc(e.name)}" title="Duplicate row">⧉</button><button class="sm ghost" data-act="del" aria-label="Remove ${esc(e.name)}" title="Remove row">✕</button></td></tr>`);
   }
   for (const x of pending) out.push(dividerRow(x, NC));
   $('tbl').tBodies[0].innerHTML = out.join('') || `<tr><td colspan="${NC}" class="muted">No rows match. Add rows with “+ Add row” or clear filters.</td></tr>`;
 }
-function dividerRow({ a, c, row }, ncols) { const e = ENT[row.ent]; return `<tr class="divider" style="--dcol:${a.color}"><td colspan="${ncols}">▲ faster than ${esc(e.name)} (${c.speed}${c.priority ? ', p' + c.priority : ''}) — slower ▼</td></tr>`; }
+function dividerRow({ a, c, row }, ncols) { const e = ENT[row.ent]; return `<tr class="divider" style="--dcol:${a.color}"><td colspan="${ncols}">▲ moves before ${esc(e.name)} (${c.speed}${c.priority ? ', p' + c.priority : ''}) — moves after ▼</td></tr>`; }
 function sprite(e, cls = 'spr') { return e.sprite >= 0 ? `<img class="${cls}" src="${DATA.sprites[e.sprite]}" alt="" loading="lazy">` : `<span class="${cls}" style="display:inline-block"></span>`; }
 
 // ---------- dock ----------
@@ -320,7 +386,7 @@ let hoverRowId = null;
 function renderDock() {
   const ancs = anchorList();
   let h = `<div class="dockhead"><span class="lbl muted">ANCHORS</span><button class="sm" id="btnPinTeam" title="Pin every row tagged My Team">Pin team</button>` +
-    `<span class="lbl muted" style="margin-left:10px">TARGETS</span>` + (S.targets.length ? S.targets.map(t => { const c = targetCalc(t); return `<span class="tchip" data-target="${t.id}" title="Click to edit · ${esc(specSummary(t.spec))}">🎯 ${esc(t.label)} <b>${c.speed}</b>${c.priority ? `<span class="muted">p${c.priority > 0 ? '+' : ''}${c.priority}</span>` : ''}<span class="x" data-act="untarget" title="Remove target">✕</span></span>`; }).join('') : `<span class="muted">click any speed cell in the table to mark it as a value to beat</span>`) +
+    `<span class="lbl muted" style="margin-left:10px">TARGETS</span>` + (S.targets.length ? S.targets.map(t => { const c = targetCalc(t); return `<span class="tchip" data-target="${t.id}" title="Click to edit · ${esc(specSummary(t.spec))}"><button class="ghost sm" data-act="edit-target">🎯 ${esc(t.label)} <b>${c.speed}</b>${c.priority ? `<span class="muted">p${c.priority > 0 ? '+' : ''}${c.priority}</span>` : ''}</button><button class="ghost sm" data-act="untarget" aria-label="Remove target ${esc(t.label)}">✕</button></span>`; }).join('') : `<span class="muted">click any speed cell in the table to mark it as a value to beat</span>`) +
     (S.targets.length > 1 ? `<button class="sm ghost" id="btnClearTargets">clear all</button>` : '') + `</div>`;
   if (!ancs.length) h += `<div class="muted" style="font-size:12px">Pin a Pokémon (◆ on a row, or click a name → “Pin as anchor”) to compare everything against it. Each anchor gets its own card here and its own comparison column in the table; drag cards to reorder.</div>`;
   for (const { a, c, row } of ancs) {
@@ -329,7 +395,7 @@ function renderDock() {
       <div class="ahead"><span class="grip" title="Drag to reorder">⋮⋮</span>${sprite(e)}<span class="aname">${esc(e.name)}</span><b class="big" style="color:${a.color}" title="${esc(c.steps.map(s => `${s.label} → ${s.value}`).join('\n'))}">${c.speed}</b>
         ${a.collapsed ? `<span class="muted" style="font-size:12px">${esc(specSummary(a.spec))}</span>` : specControls(sp, false, e)}
         <button class="sm ghost" data-act="collapse" title="${a.collapsed ? 'Expand controls' : 'Collapse controls'}">${a.collapsed ? '▸ edit' : '▾'}</button>
-        <span class="x" data-act="unpin" title="Unpin" style="cursor:pointer;opacity:.7">✕</span></div>
+        <button class="sm ghost" data-act="up" aria-label="Move ${esc(e.name)} anchor up" ${S.anchors[0].id === a.id ? 'disabled' : ''}>↑</button><button class="sm ghost" data-act="down" aria-label="Move ${esc(e.name)} anchor down" ${S.anchors.at(-1).id === a.id ? 'disabled' : ''}>↓</button><button class="sm ghost" data-act="unpin" aria-label="Unpin ${esc(e.name)}">✕</button></div>
       <div class="tline" data-tline></div><div class="hov" data-hov></div></div>`;
   }
   $('dock').innerHTML = h; renderStatuses(); renderSolve(); syncTop();
@@ -344,7 +410,7 @@ function renderStatuses() {
     for (const tg of S.targets) {
       const tc = targetCalc(tg); const rl = Engine.relation(c, tc, tr); const d = c.speed - tc.speed;
       let st = rl === 'faster' ? `<b style="color:var(--faster)">✓ beats</b> (${d > 0 ? '+' + d : d})` : rl === 'tie' ? `<b style="color:var(--tie)">= tie</b>` : `<b style="color:var(--slower)">✗ ${d}</b>`;
-      if (rl !== 'faster') { const sol = Engine.solve(e, Engine.merge(a.spec), S.field, AB, tc.speed, tr); st += ` → ${sol.map(x => `<b>${esc(x.label)}</b>`).join(' · ')}`; }
+      if (rl !== 'faster') { const sol = Engine.solve(e, Engine.merge(a.spec), S.field, AB, tc, tr); st += ` → ${sol.map(x => `<b>${esc(x.label)}</b>`).join(' · ')}`; }
       h += `<span class="tst">🎯 ${esc(tg.label)} ${tc.speed}: ${st}</span>`;
     }
     el.innerHTML = h;
@@ -355,11 +421,11 @@ new ResizeObserver(syncTop).observe(document.getElementById('top'));
 function specControls(sp, partial, e) { // partial=true adds "inherit" options; returns HTML with data-k controls
   const opt = (k, vals, cur) => `<select data-k="${k}">${partial ? `<option value="__inh" ${cur == null ? 'selected' : ''}>(inherit)</option>` : ''}${vals.map(([v, l]) => `<option value="${v}" ${cur != null && String(cur) === String(v) ? 'selected' : ''}>${l}</option>`).join('')}</select>`;
   const abilNames = e ? e.abil.map(a => AB[a].name).join('/') : '';
-  return `<label class="ctl">SP <span><input type="range" min="0" max="32" data-k="sp" value="${sp.sp ?? 0}" ${partial && sp.sp == null ? 'disabled' : ''} style="width:110px;vertical-align:middle"> <input type="number" min="0" max="32" data-k="sp" value="${sp.sp ?? ''}" placeholder="${partial ? 'inh' : ''}" style="width:52px"></span></label>
+  return `<label class="ctl">SP <span><input type="range" aria-label="Speed Stat Points slider" min="0" max="32" data-k="sp" value="${sp.sp ?? 0}" ${partial && sp.sp == null ? 'disabled' : ''} style="width:110px;vertical-align:middle"> <input type="number" aria-label="Speed Stat Points" min="0" max="32" data-k="sp" value="${sp.sp ?? ''}" placeholder="${partial ? 'inh' : ''}" style="width:52px"></span></label>
   <label class="ctl">Alignment ${opt('align', [[1, '+Spe (×1.1)'], [0, 'neutral'], [-1, '−Spe (×0.9)']], sp.align)}</label>
   <label class="ctl">Stage ${opt('stage', [-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6].map(v => [v, v > 0 ? '+' + v : String(v)]), sp.stage)}</label>
-  <label class="ctl">Item ${opt('item', Object.keys(Engine.ITEMS).map(k => [k, Engine.ITEM_LABEL[k]]), sp.item)}</label>
-  <label class="ctl">Ability${abilNames ? ` <span class="muted">(${esc(abilNames)})</span>` : ''} ${opt('abil', [['auto', 'auto (field)'], ['on', 'active'], ['off', 'off']], sp.abil)}</label>
+  <label class="ctl">Item ${opt('item', e?.mega ? [['none', 'Mega Stone (required)']] : Object.keys(Engine.ITEMS).map(k => [k, Engine.ITEM_LABEL[k]]), e?.mega ? 'none' : sp.item)}</label>
+  <label class="ctl">Ability${abilNames ? ` <span class="muted">(${esc(abilNames)})</span>` : ''} ${opt('abil', [['auto', 'auto (field/status)'], ['on', 'active (first available)'], ['off', 'off'], ...(e ? e.abil : Object.keys(AB)).map(a => [a, AB[a].name + ' (active)'])], sp.abil)}</label>
   <label class="ctl">Tailwind ${opt('tailwind', [[false, 'no'], [true, 'yes']], sp.tailwind)}</label>
   <label class="ctl">Paralyzed ${opt('para', [[false, 'no'], [true, 'yes']], sp.para)}</label>
   <label class="ctl">Priority ${opt('priority', [-7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5].map(v => [v, v > 0 ? '+' + v : String(v)]), sp.priority)}</label>
@@ -380,30 +446,43 @@ function renderSolve() {
     const el = $('dock').querySelector(`.acard[data-anchor="${a.id}"] [data-hov]`); if (!el) continue; const e = ENT[row.ent];
     if (!trow || trow.id === a.rowId) { el.innerHTML = ''; continue; }
     const tc = calc(trow, sc); const te = ENT[trow.ent]; const rl = Engine.relation(c, tc, tr);
-    const sol = rl === 'faster' ? [] : Engine.solve(e, Engine.merge(a.spec), S.field, AB, tc.speed, tr);
-    el.innerHTML = `hover — vs <b>${esc(te.name)}</b> ${tc.speed} (${esc(sc.label)}): <b style="color:var(--${rl})">${rl === 'faster' ? 'outspeeds' : rl === 'tie' ? 'speed tie' : 'slower'}</b>` + (sol.length ? ` → ${sol.map(s => `<b>${esc(s.label)}</b>`).join(' · ')}` : '');
+    const sol = rl === 'faster' ? [] : Engine.solve(e, Engine.merge(a.spec), S.field, AB, tc, tr);
+    el.innerHTML = `compare — vs <b>${esc(te.name)}</b> ${tc.speed} (${esc(sc.label)}): <b style="color:var(--${rl})">${rl === 'faster' ? 'outspeeds' : rl === 'tie' ? 'speed tie' : 'slower'}</b>` + (sol.length ? ` → ${sol.map(s => `<b>${esc(s.label)}</b>`).join(' · ')}` : '');
   }
 }
 function targetEditor(tid) {
   const t = S.targets.find(x => x.id === tid); if (!t) return; const e = ENT[t.ent];
   modal(`<h2><span>🎯 Target: ${sprite(e)}${esc(e.name)}</span><button class="sm" data-close>✕</button></h2>
-    <div class="frow"><label class="ctl">Label <input type="text" id="tLabel" value="${esc(t.label)}" style="width:320px"></label><span class="big" id="tBig">${targetCalc(t).speed}</span></div>
+    <div class="frow"><label class="ctl">Label <input type="text" id="tLabel" maxlength="300" value="${esc(t.label)}" style="width:320px"></label><span class="big" id="tBig">${targetCalc(t).speed}</span></div>
     <div class="frow" id="tCtl">${specControls(Engine.merge(t.spec), false, e)}</div>
     <div class="muted" style="font-size:12px">Targets are snapshots: the ability/Tailwind state was resolved when you clicked the cell, so this value does not change with the field bar. Edit it here if you want a different assumption.</div>
     <div class="frow" style="margin-top:12px"><button class="on" data-close>Done</button><button class="danger" id="tDel">Remove target</button></div>`,
-    m => { wireSpRange(m); m.querySelector('#tLabel').oninput = ev => { t.label = ev.target.value; save(); };
+    m => { wireSpRange(m); m.querySelector('#tLabel').oninput = ev => { t.label = ev.target.value; save(); renderDock(); };
       m.querySelector('#tCtl').addEventListener('input', () => { const o = partialFromControls(m.querySelector('#tCtl')); t.spec = { ...Engine.merge(t.spec), ...o }; save(); m.querySelector('#tBig').textContent = targetCalc(t).speed; renderDock(); renderTable(); });
       m.querySelector('#tDel').onclick = () => { S.targets = S.targets.filter(x => x.id !== t.id); closeModal(); commit(); }; });
 }
 
 // ---------- modals ----------
+let modalOpener = null;
 function modal(html, onMount) {
-  const host = $('modalHost'); host.innerHTML = `<div class="modalbg"><div class="modal">${html}</div></div>`;
-  host.querySelector('.modalbg').addEventListener('mousedown', ev => { if (ev.target.classList.contains('modalbg')) closeModal(); });
-  host.querySelectorAll('[data-close]').forEach(b => b.onclick = closeModal);
-  onMount && onMount(host.querySelector('.modal'));
+  const host = $('modalHost');
+  if (!host.firstElementChild) modalOpener = {element: document.activeElement, key: focusKey(document.activeElement)};
+  host.querySelector('dialog')?.close();
+  host.innerHTML = `<dialog class="modal" aria-labelledby="modalTitle">${html}</dialog>`;
+  const dialog = host.querySelector('dialog');
+  const heading = dialog.querySelector('h2'); if (heading) heading.id = 'modalTitle';
+  dialog.querySelectorAll('[data-close]').forEach(b => { b.onclick = closeModal; b.setAttribute('aria-label', 'Close dialog'); });
+  dialog.addEventListener('cancel', ev => { ev.preventDefault(); closeModal(); });
+  dialog.addEventListener('click', ev => { if (ev.target === dialog) { const r = dialog.getBoundingClientRect(); if (ev.clientX < r.left || ev.clientX > r.right || ev.clientY < r.top || ev.clientY > r.bottom) closeModal(); } });
+  dialog.showModal();
+  onMount && onMount(dialog);
 }
-function closeModal() { $('modalHost').innerHTML = ''; }
+function closeModal() {
+  $('modalHost').querySelector('dialog')?.close(); $('modalHost').innerHTML = '';
+  const opener = modalOpener; modalOpener = null;
+  const el = opener?.element?.isConnected ? opener.element : opener?.key ? document.querySelector(opener.key) : $('search');
+  el?.focus({preventScroll:true});
+}
 function partialFromControls(root) { const o = {}; root.querySelectorAll('[data-k]').forEach(el => { if (el.type === 'range') return; const [k, v] = readControl(el); if (v !== undefined) o[k] = v; }); return o; }
 function wireSpRange(root) { root.querySelectorAll('input[type=range][data-k=sp]').forEach(r => { const n = r.parentElement.querySelector('input[type=number]'); r.oninput = () => { n.value = r.value; n.dispatchEvent(new Event('input', { bubbles: true })); }; n.addEventListener('input', () => { if (n.value !== '') { r.value = n.value; r.disabled = false; } else r.disabled = true; }); }); }
 
@@ -429,27 +508,29 @@ function rowEditor(rowId) {
     });
 }
 function colEditor(colId) {
+  if (!colId && S.columns.length >= 32) { notify('You can keep up to 32 columns.'); return; }
   const isNew = !colId; const c = isNew ? { id: uid(), label: 'Custom', spec: { sp: 32, align: 1 }, visible: true } : S.columns.find(x => x.id === colId);
   modal(`<h2><span>${isNew ? 'New column' : 'Edit column'}</span><button class="sm" data-close>✕</button></h2>
-    <div class="frow"><label class="ctl">Label <input type="text" id="cLabel" value="${esc(c.label)}"></label></div>
+    <div class="frow"><label class="ctl">Label <input type="text" id="cLabel" maxlength="160" value="${esc(c.label)}"></label></div>
     <h3>Preset spec <span class="muted" style="text-transform:none">(inherit = leave to global/tag/row)</span></h3><div class="frow" id="cCtl">${specControls(c.spec, true, null)}</div>
-    <div class="frow" style="margin-top:12px"><button class="on" id="cSave">Save</button>${isNew ? '' : '<button class="danger" id="cDel">Delete column</button>'}</div>`,
+    <div class="frow" style="margin-top:12px"><button class="on" id="cSave">Save</button>${isNew ? '' : '<button id="cLeft">Move left</button><button id="cRight">Move right</button><button class="danger" id="cDel">Delete column</button>'}</div>`,
     m => { wireSpRange(m); m.querySelector('#cSave').onclick = () => { c.label = m.querySelector('#cLabel').value || 'Column'; c.spec = partialFromControls(m.querySelector('#cCtl')); if (isNew) S.columns.push(c); closeModal(); commit(); };
-      const d = m.querySelector('#cDel'); if (d) d.onclick = () => { S.columns = S.columns.filter(x => x.id !== c.id); if (S.sortCol === c.id) S.sortCol = S.columns[0]?.id; closeModal(); commit(); }; });
+      if (!isNew) for (const [button, delta] of [['cLeft',-1],['cRight',1]]) { const b = m.querySelector('#' + button); const i = S.columns.indexOf(c); b.disabled = i + delta < 0 || i + delta >= S.columns.length; b.onclick = () => { S.columns.splice(i,1); S.columns.splice(i+delta,0,c); commit(); colEditor(c.id); }; }
+      const d = m.querySelector('#cDel'); if (d) d.disabled = S.columns.length === 1; if (d) d.onclick = () => { S.columns = S.columns.filter(x => x.id !== c.id); if (S.sortCol === c.id) S.sortCol = S.columns.find(x => x.visible)?.id || S.columns[0]?.id; if (!S.columns.some(x => x.visible)) S.columns[0].visible = true; closeModal(); commit(); }; });
 }
 function tagManager() {
   modal(`<h2><span>Tags</span><button class="sm" data-close>✕</button></h2>
     <div class="muted" style="font-size:12px">Tags carry defaults (e.g. Scarfer → Choice Scarf; Trick Room → 0 SP, −Spe; My Team → side A so “Tailwind Side A” applies). Click a tag to edit its defaults.</div>
     <div id="tagList"></div>
-    <div class="frow" style="margin-top:10px"><input type="text" id="newTag" placeholder="New tag name"><input type="color" id="newColor" value="#22c55e"><button id="addTag">Add tag</button></div>`,
+    <div class="frow" style="margin-top:10px"><input type="text" id="newTag" aria-label="New tag name" maxlength="160" placeholder="New tag name"><input type="color" id="newColor" aria-label="New tag color" value="#22c55e"><button id="addTag">Add tag</button></div>`,
     m => {
-      const list = () => { m.querySelector('#tagList').innerHTML = S.tags.map(t => `<div class="tagrow" data-tag="${t.id}"><input type="color" value="${t.color}" data-color><input type="text" value="${esc(t.name)}" data-name style="width:140px"><span class="muted" style="flex:1;font-size:12px">${esc(specSummary(t.defaults))} · ${S.rows.filter(r => r.tags.includes(t.id)).length} rows</span><button class="sm" data-edit>Defaults…</button><button class="sm danger" data-del>Delete</button></div>`).join('');
+      const list = () => { m.querySelector('#tagList').innerHTML = S.tags.map(t => `<div class="tagrow" data-tag="${t.id}"><input type="color" aria-label="Tag color" value="${t.color}" data-color><input type="text" aria-label="Tag name" maxlength="160" value="${esc(t.name)}" data-name style="width:140px"><span class="muted" style="flex:1;font-size:12px">${esc(specSummary(t.defaults))} · ${S.rows.filter(r => r.tags.includes(t.id)).length} rows</span><button class="sm" data-edit>Defaults…</button><button class="sm danger" data-del>Delete</button></div>`).join('');
         m.querySelectorAll('.tagrow').forEach(row => { const t = tagById(row.dataset.tag);
           row.querySelector('[data-color]').oninput = ev => { t.color = ev.target.value; commit(); };
           row.querySelector('[data-name]').oninput = ev => { t.name = ev.target.value; commit(); };
           row.querySelector('[data-del]').onclick = () => { if (!confirm(`Delete tag “${t.name}”?`)) return; S.tags = S.tags.filter(x => x.id !== t.id); S.rows.forEach(r => r.tags = r.tags.filter(x => x !== t.id)); S.filters.tags = S.filters.tags.filter(x => x !== t.id); commit(); list(); };
           row.querySelector('[data-edit]').onclick = () => tagDefaults(t.id); }); };
-      m.querySelector('#addTag').onclick = () => { const n = m.querySelector('#newTag').value.trim(); if (!n) return; S.tags.push({ id: uid(), name: n, color: m.querySelector('#newColor').value, defaults: {} }); m.querySelector('#newTag').value = ''; commit(); list(); };
+      m.querySelector('#addTag').onclick = () => { const n = m.querySelector('#newTag').value.trim(); if (!n) return; if (S.tags.length >= 64) { notify('You can keep up to 64 tags.'); return; } S.tags.push({ id: uid(), name: n, color: m.querySelector('#newColor').value, defaults: {} }); m.querySelector('#newTag').value = ''; commit(); list(); };
       list();
     });
 }
@@ -461,10 +542,11 @@ function tagDefaults(tagId) {
     m => { wireSpRange(m); m.querySelector('#tSave').onclick = () => { t.defaults = partialFromControls(m.querySelector('#tCtl')); commit(); tagManager(); }; });
 }
 function addRowPicker() {
+  if (S.rows.length >= 2000) { notify('You can keep up to 2,000 rows.'); return; }
   modal(`<h2><span>Add row</span><button class="sm" data-close>✕</button></h2>
-    <input type="search" id="pick" placeholder="Type a name…" style="width:100%;margin-bottom:8px" autofocus><div class="list" id="pickList"></div>`,
+    <input type="search" id="pick" aria-label="Search species to add" placeholder="Type a name…" style="width:100%;margin-bottom:8px" autofocus><div class="list" id="pickList"></div>`,
     m => { const inp = m.querySelector('#pick'); const list = () => { const q = inp.value.trim().toLowerCase(); const items = DATA.entities.filter(e => !q || e.name.toLowerCase().includes(q)).slice(0, 60);
-        m.querySelector('#pickList').innerHTML = items.map(e => `<div class="it" data-ent="${e.id}">${sprite(e)}<span>${esc(e.name)}</span><span class="muted">base ${e.spe}</span>${S.rows.some(r => r.ent === e.id) ? '<span class="muted" style="margin-left:auto;font-size:11px">in list</span>' : ''}</div>`).join('');
+        m.querySelector('#pickList').innerHTML = items.map(e => `<button class="it" data-ent="${e.id}">${sprite(e)}<span>${esc(e.name)}</span><span class="muted">base ${e.spe}</span>${S.rows.some(r => r.ent === e.id) ? '<span class="muted" style="margin-left:auto;font-size:11px">in list</span>' : ''}</button>`).join('');
         m.querySelectorAll('.it').forEach(it => it.onclick = () => { S.rows.push({ id: uid(), ent: it.dataset.ent, tags: [...S.filters.tags], ov: {} }); commit(); closeModal(); }); };
       inp.oninput = list; list(); inp.focus(); });
 }
@@ -477,15 +559,142 @@ function helpModal() {
   <p><b>Targets</b>: click any speed cell (e.g. Swampert-Mega × Min while Rain is on) to mark it 🎯 as a value to beat. The cell's ability/Tailwind state is snapshotted so the target does not move when you change the field bar; click the chip to edit or relabel it. Every anchor card then shows ✓/✗ against every target and the minimal change (SP, +Spe alignment, Scarf, stage, Tailwind) that beats it by at least 1 point.</p>
   <p><b>Field bar</b>: weather / Electric Terrain auto-activate speed abilities (Swift Swim, Chlorophyll, Sand Rush, Slush Rush, Surge Surfer) for rows whose ability mode is “auto”. Tailwind Side A/B applies to rows whose tag/override sets that side (My Team = A, Opponent = B).</p>
   <p><b>Columns widths</b> default to fit their content (nothing wraps or gets cut off). Drag a header's right edge to resize; double-click the edge to auto-fit again. Widths are saved.</p>
-  <p>Everything is saved in this browser (localStorage). Use Export/Import to back up or share. <kbd>/</kbd> focuses search.</p>`);
+  <p><b>Setups and sharing:</b> use Setups to save named teams and comparisons in this browser. Share link captures the current comparison; opening a link previews it before replacing your working setup. Export/Import provides a JSON backup.</p>
+  <p><b>Abilities:</b> auto considers available Speed abilities and the field or paralysis; choose a specific active ability or off for your actual set. Quick Feet ignores the paralysis penalty. Unburden must be activated manually after item loss. Stage-based abilities use the Stage control.</p>
+  <p><b>Limits:</b> this compares Speed and move priority. Quick Claw, Stall and other within-bracket ordering effects are not modeled. Mega forms require their Mega Stone; other item multipliers do not apply.</p>
+  <button id="showGuide">Show getting started guide</button>
+  <p>Everything is saved in this browser (localStorage). Use Export/Import to back up or share. <kbd>/</kbd> focuses search; <kbd>?</kbd> opens help. Tab to controls and use Enter or Space to activate them.</p>`, m => { m.querySelector('#showGuide').onclick = () => { S.guideDismissed = false; closeModal(); commit(); }; });
 }
 
 // ---------- actions ----------
-function pin(rowId) { let a = S.anchors.find(x => x.rowId === rowId); if (!a) { const row = S.rows.find(r => r.id === rowId); a = { id: uid(), rowId, spec: anchorSpecInit(row), color: nextColor(), collapsed: false }; S.anchors.push(a); } commit(); }
-function dupRow(rowId) { const i = S.rows.findIndex(r => r.id === rowId); const r = S.rows[i]; S.rows.splice(i + 1, 0, { id: uid(), ent: r.ent, tags: [...r.tags], ov: { ...r.ov } }); commit(); }
+function pin(rowId) { if (S.anchors.length >= 32) { notify('You can pin up to 32 anchors.'); return; } let a = S.anchors.find(x => x.rowId === rowId); if (!a) { const row = S.rows.find(r => r.id === rowId); a = { id: uid(), rowId, spec: anchorSpecInit(row), color: nextColor(), collapsed: false }; S.anchors.push(a); } commit(); }
+function dupRow(rowId) { if (S.rows.length >= 2000) { notify('You can keep up to 2,000 rows.'); return; } const i = S.rows.findIndex(r => r.id === rowId); const r = S.rows[i]; S.rows.splice(i + 1, 0, { id: uid(), ent: r.ent, tags: [...r.tags], ov: { ...r.ov } }); commit(); }
 function delRow(rowId) { S.rows = S.rows.filter(r => r.id !== rowId); S.anchors = S.anchors.filter(a => a.rowId !== rowId); S.targets.forEach(t => { if (t.rowId === rowId) t.rowId = null; }); commit(); }
 function exportJSON() { const blob = new Blob([JSON.stringify(S, null, 1)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `speed-tiers-${new Date().toISOString().slice(0, 10)}.json`; a.click(); URL.revokeObjectURL(a.href); }
-function importJSON() { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'application/json,.json'; inp.onchange = () => { const f = inp.files[0]; if (!f) return; f.text().then(t => { try { const s = JSON.parse(t); if (s.v !== 1 || !s.rows) throw 0; s.rows = s.rows.filter(r => ENT[r.ent]); S = s; commit(); } catch (e) { alert('Not a valid speed-tiers export.'); } }); }; inp.click(); }
+function importJSON() {
+  const input = document.createElement('input'); input.type = 'file'; input.accept = 'application/json,.json';
+  input.onchange = async () => {
+    const file = input.files[0]; if (!file) return;
+    try {
+      if (file.size > 1000000) throw new Error('The file is too large (maximum 1 MB).');
+      const result = StateModel.normalize(JSON.parse(await file.text()), DATA);
+      previewSetup(result, 'Import comparison');
+    } catch (e) { notify('Import rejected. Your current setup has not changed. ' + e.message); }
+  };
+  input.click();
+}
+
+// ---------- first-use guidance ----------
+function renderGuide() {
+  const host = $('guide'); host.hidden = S.guideDismissed;
+  if (S.guideDismissed) { host.style.display = 'none'; return; }
+  host.style.display = '';
+  const pinned = S.anchors.length > 0, targeted = S.targets.length > 0;
+  host.innerHTML = `<div style="flex:1"><b>Build your first comparison</b><div class="stepsline">
+    <span class="${pinned ? 'done' : ''}">${pinned ? '✓' : '1.'} Search for your Pokémon and press ◆ to pin it.</span>
+    <span class="${targeted ? 'done' : ''}">${targeted ? '✓' : '2.'} Select a rival’s Speed value to set a target.</span>
+    <span>3. Adjust your anchor’s SP, alignment, or field to see what moves first.</span></div>
+    ${pinned && targeted ? '<p class="done">Your comparison is ready. Each anchor card now shows the changes needed to beat your targets.</p>' : ''}</div>
+    <button id="guideSearch">Find a Pokémon</button><button id="guideDismiss" aria-label="Dismiss getting started guide">Dismiss</button>`;
+  $('guideSearch').onclick = () => { $('search').focus(); $('search').select(); };
+  $('guideDismiss').onclick = () => { S.guideDismissed = true; commit(); $('btnHelp').focus(); };
+}
+
+// ---------- backups, named setups, and sharing ----------
+const LIBRARY_KEY = 'speedtiers.setups.v1';
+function backupCurrent() {
+  try { localStorage.setItem(LS + '.previous', JSON.stringify(S)); return true; }
+  catch (e) { return false; }
+}
+function previewSetup(result, source) {
+  const next = result.state;
+  modal(`<h2><span>${esc(source)}</span><button data-close>✕</button></h2>
+    <p><b>${esc(next.name)}</b> · ${next.rows.length} rows · ${next.anchors.length} anchors · ${next.targets.length} targets</p>
+    <p>This replaces the current comparison. Named setups stay in your library. You can export your current comparison before continuing.</p>
+    ${result.warnings.length ? `<p>${result.warnings.map(esc).join('<br>')}</p>` : ''}
+    <div class="frow"><button id="beforeImport">Export current</button><button class="on" id="applySetup">Load setup</button><button data-close>Cancel</button></div>`,
+    m => {
+      m.querySelector('#beforeImport').onclick = exportJSON;
+      m.querySelector('#applySetup').onclick = () => {
+        const backedUp = backupCurrent();
+        S = next; closeModal(); commit();
+        notify(`Loaded “${S.name}”. ${result.warnings.join(' ')}${backedUp ? ' The previous comparison is available in Setups → Restore previous.' : ' Browser backup could not be saved; use Export to keep this setup.'}`);
+      };
+    });
+}
+function readLibrary() {
+  const raw = JSON.parse(localStorage.getItem(LIBRARY_KEY) || '[]');
+  if (!Array.isArray(raw) || raw.length > 20 || raw.some(x => !x || typeof x.id !== 'string' || !/^[a-z0-9_-]+$/i.test(x.id) || typeof x.name !== 'string' || x.name.length > 80 || !x.state)) throw new Error('The setup library is invalid. Your stored data has not been changed.');
+  return raw;
+}
+function setupsModal() {
+  let library;
+  try { library = readLibrary(); }
+  catch (e) { notify('Cannot read saved setups. ' + e.message); return; }
+  modal(`<h2><span>Named setups</span><button data-close>✕</button></h2>
+    <p>Save a team and its complete comparison: rows, anchors, targets, columns, tags, and field settings. Setups are stored in this browser.</p>
+    <div class="frow"><label class="ctl">Setup name <input id="saveName" maxlength="80" value="${esc(S.name)}"></label><button class="on" id="saveNamed">Save setup</button></div>
+    <div id="libraryList" class="list">${library.length ? library.map(x => `<div class="tagrow" data-saved="${x.id}"><b style="flex:1">${esc(x.name)}</b><button data-load>Load</button><button class="danger" data-remove>Delete</button></div>`).join('') : '<p>No saved setups yet.</p>'}</div>
+    <div class="frow"><button id="restorePrevious">Restore previous comparison</button><button id="downloadNamed">Export current comparison</button></div><p id="libraryStatus" role="status"></p>`, m => {
+      const status = message => { m.querySelector('#libraryStatus').textContent = message; };
+      m.querySelector('#saveNamed').onclick = () => {
+        const name = m.querySelector('#saveName').value.trim(); if (!name) { status('Enter a name for this setup.'); return; }
+        try {
+          const state = StateModel.normalize({...S, name}, DATA).state;
+          const existing = library.find(x => x.name === name);
+          if (!existing && library.length >= 20) { status('You can save up to 20 setups. Delete a setup or reuse a name.'); return; }
+          if (existing && !confirm(`Replace the saved setup “${name}”?`)) return;
+          const entry = {id: existing?.id || uid(), name, state};
+          const next = existing ? library.map(x => x.id === existing.id ? entry : x) : [...library, entry];
+          localStorage.setItem(LIBRARY_KEY, JSON.stringify(next));
+          S.name = name; commit(); setupsModal(); notify(`Saved “${name}” in this browser.`);
+        } catch (e) { status('Could not save this setup. Use Export for a backup. ' + e.message); }
+      };
+      m.querySelectorAll('[data-saved]').forEach(row => {
+        const entry = library.find(x => x.id === row.dataset.saved);
+        row.querySelector('[data-load]').onclick = () => { try { previewSetup(StateModel.normalize(entry.state, DATA), 'Load saved setup'); } catch (e) { status('Cannot load this setup. ' + e.message); } };
+        row.querySelector('[data-remove]').onclick = () => {
+          if (!confirm(`Delete saved setup “${entry.name}”? Your current comparison will stay open.`)) return;
+          try { localStorage.setItem(LIBRARY_KEY, JSON.stringify(library.filter(x => x.id !== entry.id))); setupsModal(); } catch (e) { status('Could not update the setup library.'); }
+        };
+      });
+      m.querySelector('#downloadNamed').onclick = exportJSON;
+      m.querySelector('#restorePrevious').onclick = () => {
+        try { const raw = localStorage.getItem(LS + '.previous'); if (!raw) { status('No previous comparison has been backed up yet.'); return; } previewSetup(StateModel.normalize(JSON.parse(raw), DATA), 'Restore previous comparison'); }
+        catch (e) { status('Cannot restore the previous comparison. ' + e.message); }
+      };
+    });
+}
+async function shareSetup() {
+  const button = $('btnShare'); button.disabled = true;
+  try {
+    const snapshot = StateModel.normalize(S, DATA).state;
+    const code = await ShareCodec.encode(StateModel.pack(snapshot));
+    const base = location.protocol === 'file:' ? 'https://pizzacatz.github.io/speed-tiers/' : location.href.split('#')[0];
+    const link = base + '#setup=' + code;
+    modal(`<h2><span>Share this comparison</span><button data-close>✕</button></h2>
+      <p>This link includes “${esc(snapshot.name)}”, its rows, anchors, targets, tags, and field settings. Anyone with the link can load this snapshot. Later edits do not change the link.</p>
+      <label class="ctl">Share link<textarea id="shareURL" rows="4" readonly></textarea></label>
+      <div class="frow"><button class="on" id="copyShare">Copy link</button><button id="shareExport">Export JSON instead</button><button data-close>Done</button></div><p id="shareStatus" role="status"></p>`, m => {
+        m.querySelector('#shareURL').value = link;
+        m.querySelector('#shareExport').onclick = exportJSON;
+        m.querySelector('#copyShare').onclick = async () => {
+          try { await navigator.clipboard.writeText(link); m.querySelector('#shareStatus').textContent = 'Link copied.'; }
+          catch (e) { const input = m.querySelector('#shareURL'); input.focus(); input.select(); m.querySelector('#shareStatus').textContent = 'Copy the selected link using your browser’s Copy command.'; }
+        };
+      });
+  } catch (e) { notify('Could not create a share link. ' + e.message); }
+  finally { button.disabled = false; }
+}
+async function loadShareLink() {
+  if (!location.hash.startsWith('#setup=')) return;
+  const hash = location.hash;
+  try {
+    const result = StateModel.unpack(await ShareCodec.decode(hash.slice(7)), DATA);
+    previewSetup(result, 'Open shared comparison');
+  } catch (e) { notify('This share link could not be opened. Your current setup has not changed. ' + e.message); }
+  finally { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} }
+}
 
 // ---------- events ----------
 $('weatherSeg').addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b) return; S.field.weather = b.dataset.w || null; commit(); });
@@ -494,8 +703,9 @@ $('btnTR').onclick = () => { S.field.trickRoom = !S.field.trickRoom; commit(); }
 $('twA').onclick = () => { S.field.tailwind.A = !S.field.tailwind.A; commit(); };
 $('twB').onclick = () => { S.field.tailwind.B = !S.field.tailwind.B; commit(); };
 $('btnTheme').onclick = () => { S.theme = S.theme === 'auto' ? 'dark' : S.theme === 'dark' ? 'light' : 'auto'; commit(); };
+$('btnSetups').onclick = setupsModal; $('btnShare').onclick = shareSetup;
 $('btnExport').onclick = exportJSON; $('btnImport').onclick = importJSON; $('btnHelp').onclick = helpModal;
-$('btnReset').onclick = () => { if (confirm('Reset everything to defaults? (Export first if you want a backup.)')) { S = defaultState(); commit(); } };
+$('btnReset').onclick = () => { if (confirm('Reset everything to defaults? (Export first if you want a backup.)')) { backupCurrent(); S = defaultState(); commit(); } };
 $('search').addEventListener('input', ev => { S.filters.search = ev.target.value; save(); renderTable(); });
 $('btnAdd').onclick = addRowPicker; $('btnTags').onclick = tagManager; $('btnAddCol').onclick = () => colEditor(null);
 $('btnTagMode').onclick = () => { S.filters.mode = S.filters.mode === 'any' ? 'all' : 'any'; commit(); };
@@ -503,7 +713,7 @@ $('chkMegas').onchange = ev => { S.filters.megas = ev.target.checked; commit(); 
 $('chkOnlyTagged').onchange = ev => { S.filters.onlyTagged = ev.target.checked; commit(); };
 $('tagFilters').addEventListener('click', ev => { const c = ev.target.closest('[data-tag]'); if (!c) return; const id = c.dataset.tag; S.filters.tags = S.filters.tags.includes(id) ? S.filters.tags.filter(x => x !== id) : [...S.filters.tags, id]; commit(); });
 $('colChips').addEventListener('click', ev => { const chip = ev.target.closest('.colchip'); if (!chip) return; const id = chip.dataset.col; const act = ev.target.dataset.act; const c = S.columns.find(x => x.id === id);
-  if (act === 'eye') { c.visible = !c.visible; if (!c.visible && S.sortCol === id) S.sortCol = S.columns.find(x => x.visible)?.id || id; }
+  if (act === 'eye') { if (c.visible && S.columns.filter(x => x.visible).length === 1) { notify('Keep at least one comparison column visible.'); return; } c.visible = !c.visible; if (!c.visible && S.sortCol === id) S.sortCol = S.columns.find(x => x.visible)?.id || id; }
   else if (act === 'edit') return colEditor(id); else { c.visible = true; S.sortCol = id; }
   commit(); });
 let dragId = null;
@@ -513,7 +723,7 @@ $('colChips').addEventListener('dragleave', ev => { const chip = ev.target.close
 $('colChips').addEventListener('drop', ev => { const chip = ev.target.closest('.colchip'); if (!chip || !dragId) return; ev.preventDefault(); const from = S.columns.findIndex(c => c.id === dragId), to = S.columns.findIndex(c => c.id === chip.dataset.col); if (from < 0 || to < 0 || from === to) return; const [c] = S.columns.splice(from, 1); S.columns.splice(to, 0, c); dragId = null; commit(); });
 let rzState = null;
 $('tbl').addEventListener('mousedown', ev => { const rz = ev.target.closest('.rz'); if (!rz) return; ev.preventDefault(); ev.stopPropagation(); const th = rz.parentElement; rzState = { key: rz.dataset.rz, startX: ev.clientX, startW: th.getBoundingClientRect().width, th }; rz.classList.add('active'); document.body.classList.add('resizing'); });
-document.addEventListener('mousemove', ev => { if (!rzState) return; const w = Math.max(40, Math.round(rzState.startW + ev.clientX - rzState.startX)); rzState.th.style.width = rzState.th.style.minWidth = rzState.th.style.maxWidth = w + 'px'; rzState.w = w; });
+document.addEventListener('mousemove', ev => { if (!rzState) return; const w = Math.min(2000, Math.max(40, Math.round(rzState.startW + ev.clientX - rzState.startX))); rzState.th.style.width = rzState.th.style.minWidth = rzState.th.style.maxWidth = w + 'px'; rzState.w = w; });
 document.addEventListener('mouseup', () => { if (!rzState) return; if (rzState.w) S.colWidths[rzState.key] = rzState.w; document.body.classList.remove('resizing'); rzState = null; commit(); });
 $('tbl').addEventListener('dblclick', ev => { const rz = ev.target.closest('.rz'); if (!rz) return; ev.preventDefault(); delete S.colWidths[rz.dataset.rz]; commit(); });
 $('tbl').addEventListener('click', ev => {
@@ -524,15 +734,17 @@ $('tbl').addEventListener('click', ev => {
   if (act === 'pin') pin(id); else if (act === 'dup') dupRow(id); else if (act === 'del') delRow(id); else if (act === 'edit' || ev.target.closest('td.l')) rowEditor(id);
 });
 $('tbl').addEventListener('mouseover', ev => { const tr = ev.target.closest('tr[data-row]'); const id = tr ? tr.dataset.row : null; if (id !== hoverRowId) { hoverRowId = id; renderSolve(); } });
+$('tbl').addEventListener('focusin', ev => { hoverRowId = ev.target.closest('tr[data-row]')?.dataset.row || null; renderSolve(); });
 $('tbl').addEventListener('mouseleave', () => { hoverRowId = null; renderSolve(); });
 $('dock').addEventListener('click', ev => {
-  if (ev.target.id === 'btnPinTeam') { S.rows.filter(r => r.tags.includes('team')).forEach(r => { if (!S.anchors.some(a => a.rowId === r.id)) S.anchors.push({ id: uid(), rowId: r.id, spec: anchorSpecInit(r), color: nextColor(), collapsed: false }); }); commit(); return; }
+  if (ev.target.id === 'btnPinTeam') { S.rows.filter(r => r.tags.includes('team')).forEach(r => { if (S.anchors.length < 32 && !S.anchors.some(a => a.rowId === r.id)) S.anchors.push({ id: uid(), rowId: r.id, spec: anchorSpecInit(r), color: nextColor(), collapsed: false }); }); commit(); return; }
   if (ev.target.id === 'btnClearTargets') { S.targets = []; commit(); return; }
   const tch = ev.target.closest('.tchip'); if (tch) { if (ev.target.dataset.act === 'untarget') { S.targets = S.targets.filter(t => t.id !== tch.dataset.target); commit(); } else targetEditor(tch.dataset.target); return; }
   const card = ev.target.closest('.acard'); if (!card) return; const a = S.anchors.find(x => x.id === card.dataset.anchor); if (!a) return;
   const act = ev.target.dataset.act;
   if (act === 'unpin') { S.anchors = S.anchors.filter(x => x.id !== a.id); commit(); }
   else if (act === 'collapse') { a.collapsed = !a.collapsed; commit(); }
+  else if (act === 'up' || act === 'down') { const i = S.anchors.indexOf(a), to = i + (act === 'up' ? -1 : 1); if (to >= 0 && to < S.anchors.length) { S.anchors.splice(i,1); S.anchors.splice(to,0,a); commit(); } }
 });
 $('dock').addEventListener('input', ev => { const card = ev.target.closest('.acard'); if (!card || !ev.target.dataset.k) return; const a = S.anchors.find(x => x.id === card.dataset.anchor); if (!a) return;
   if (ev.target.type === 'range') { const n = card.querySelector('input[type=number][data-k=sp]'); n.value = ev.target.value; }
@@ -547,9 +759,12 @@ $('dock').addEventListener('dragover', ev => { const card = ev.target.closest('.
 $('dock').addEventListener('dragleave', ev => { const card = ev.target.closest('.acard'); if (card) card.classList.remove('dragover'); });
 $('dock').addEventListener('drop', ev => { const card = ev.target.closest('.acard'); if (!card || !dragAnchor) return; ev.preventDefault(); const from = S.anchors.findIndex(a => a.id === dragAnchor), to = S.anchors.findIndex(a => a.id === card.dataset.anchor); dragAnchor = null; if (from < 0 || to < 0 || from === to) return; const [a] = S.anchors.splice(from, 1); S.anchors.splice(to, 0, a); commit(); });
 $('dock').addEventListener('dragend', () => { dragAnchor = null; $('dock').querySelectorAll('.dragover').forEach(x => x.classList.remove('dragover')); });
-document.addEventListener('keydown', ev => { if (ev.key === '/' && !/input|select|textarea/i.test(document.activeElement.tagName)) { ev.preventDefault(); $('search').focus(); } if (ev.key === 'Escape') closeModal(); });
+document.addEventListener('keydown', ev => { if (ev.key === '?' && !/input|select|textarea/i.test(document.activeElement.tagName)) { ev.preventDefault(); helpModal(); } if (ev.key === '/' && !/input|select|textarea/i.test(document.activeElement.tagName)) { ev.preventDefault(); $('search').focus(); } if (ev.key === 'Escape' && $('modalHost').firstElementChild) { ev.preventDefault(); closeModal(); } });
 
 render();
+if (startupMessage) notify(startupMessage);
+loadShareLink();
+window.addEventListener('hashchange', loadShareLink);
 })();
 </script>
 </body>

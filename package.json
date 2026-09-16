@@ -1,0 +1,13 @@
+{
+  "name": "champions-speed-tiers",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Offline Pokémon Champions Speed tiers with GitHub Pages publishing",
+  "scripts": {
+    "build": "python3 build.py",
+    "test": "node test/engine.test.js && node --test test/regression.test.js test/ui.test.js"
+  },
+  "devDependencies": {
+    "jsdom": "30.0.1"
+  }
+}

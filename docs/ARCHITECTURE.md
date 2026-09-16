@@ -1,6 +1,6 @@
 # Architecture
 
-Vanilla HTML/CSS/JS, no framework, no build step for the app itself. `build.py` only injects data and the engine into
+Vanilla HTML/CSS/JS, no framework, no build step for the app itself. `build.py` injects the committed MCP data, state module, and engine into
 `src/app.html`. Everything below is inside the one output file.
 
 ## Layers inside `speed-tiers.html`
@@ -29,7 +29,7 @@ The engine is CommonJS-exported when `module` exists so `test/engine.test.js` ca
 
 ```
 {
-  v: 1,
+  v: 2, name, catalogue: [entityId], dataRevision, guideDismissed,
   field:   { weather:null|'sun'|'rain'|'sand'|'snow', eterrain, trickRoom, tailwind:{A,B} },
   global:  PartialSpec,
   columns: [{ id, label, spec: PartialSpec, visible }],   sortCol: id,
@@ -48,7 +48,10 @@ The engine is CommonJS-exported when `module` exists so `test/engine.test.js` ca
 - Targets are **snapshots** made by `makeTarget(row, col)`: the cell's resolved spec with the field folded in
   (`abil` → `'on'`/`'off'` depending on whether the ability was active, `tailwind` → true/false, `side` → null), so their
   speed is independent of the field bar afterwards. `targetCalc(t)` recomputes from the stored spec.
-- On load, rows/anchors pointing at entities no longer in the data are dropped (survives roster changes between builds).
+- `StateModel.normalize` validates and reconstructs imported/stored state. It rejects invalid IDs, colors, ranges, types, collection sizes, and duplicate IDs before they reach rendering. Unknown entities and obsolete target references are removed; column visibility/sort are repaired.
+- Version 1 migrates using the original roster catalogue. Version 2 saves its known catalogue, so future roster additions are added once without resurrecting deliberately removed old rows.
+- Named setups live under `speedtiers.setups.v1`. The last replaced setup is backed up under `speedtiers.v1.previous`; unreadable startup state is retained under `.recovery`. Storage failures are reported, and exports remain usable.
+- `StateModel.pack` uses compact row tuples; `ShareCodec` gzip-compresses UTF-8 JSON into a URL-safe fragment. Both compressed input and decompressed output are bounded. Opening links and importing JSON validates and previews before applying, then backs up the current state.
 
 ## Resolution pipeline
 
@@ -67,14 +70,19 @@ status(a, t)      = relation(anchorSpeed(a), targetCalc(t)) + Engine.solve(...) 
 - Table is one `innerHTML` string per render (≈300 rows × ≤8 columns → a few ms). Rows are banded by distinct
   (priority, speed) so speed ties are visible; the anchor divider row is inserted where the anchor sorts.
 - Anchor cards are rendered by `renderDock()`; live edits (`input` in a card) update that card's number, `renderTable()`, `renderStatuses()` (target lines) and `renderSolve()` (hover lines) without rebuilding the controls, so the SP slider keeps focus. Cards are HTML5-draggable (dragstart is suppressed when it originates on an input/select/button so range sliders still work).
-- `#top` (header + anchor dock + toolbar) is one sticky block; a `ResizeObserver` writes its height to `--topH`, which the sticky `thead` uses as its `top` offset. `main` must not be an overflow container or the sticky header would attach to it instead of the viewport.
+- `#top` is sticky on desktop and static on narrow screens. `.tableRegion` provides a bounded horizontal/vertical scrolling area with sticky column headers at its top. Row action buttons stay visible at the right edge.
+- Interactive names, cells, tags, and column controls are native buttons. Dialogs use native `<dialog>.showModal()` for focus containment. Commit restores focus after rendering, and dialogs restore their opener after closing. Anchor up/down and column left/right buttons supplement dragging.
 - Column widths: table is `width:auto; table-layout:auto` with `white-space:nowrap`, so every column is content-fit by default. Each `th` carries a `.rz` drag handle (mousedown/mousemove/mouseup on `document`); the resulting px width is stored in `S.colWidths[key]` and applied as `width/min-width/max-width` on the `th` (name/tags cells additionally clip with an ellipsis when narrowed). Double-click a handle to delete the entry and auto-fit again.
 - All interactions are event-delegated on `#tbl`, `#dock`, `#colChips`, `#tagFilters`; modals are rendered into `#modalHost`.
 
 ## Extension points
 
-- **New speed modifier** (item/ability): add to `Engine.ITEMS`/`ITEM_LABEL` or to `SPEED_ABILITIES` in `build.py`
+- **New speed modifier** (item/ability): add to `Engine.ITEMS`/`ITEM_LABEL` or to the MCP snapshot importer (after verifying with the MCP)
   (mult + optional field condition) — the UI selects derive from those tables.
 - **New field condition**: add to `field`, to `condMet()` in the engine, and a toggle in the header.
 - **New preset column / tag**: edit `defaultColumns()` / `defaultTags()` in `src/app.html` (only affects fresh states — existing users keep theirs).
-- **Schema change**: bump `v`, migrate in `load()`.
+- **Schema change**: bump `v`, migrate in `StateModel.normalize()`, and add round-trip and migration checks.
+
+## Validation
+
+`npm test` runs original engine vectors, fresh MCP fixtures in `test/mcp-vectors.json`, migration and hostile-input checks, bounded share-codec round trips, and jsdom integration tests. jsdom verifies interaction wiring, not physical browser layout or native dialog focus trapping. GitHub Pages builds and runs these checks before deploying the committed standalone HTML.
