@@ -2,10 +2,12 @@
 
 A single-file, fully offline speed-tier calculator for **Pokémon Champions (Regulation M-B)**.
 
-**Use it:** open [`speed-tiers.html`](speed-tiers.html) in any modern browser. No server, no network, no install.
+**Use it online:** [Champions Speed Tiers](https://pizzacatz.github.io/speed-tiers/).
+
+**Use it offline:** download [`speed-tiers.html`](https://pizzacatz.github.io/speed-tiers/speed-tiers.html) and open it in any modern browser. No server, no network, no install.
 Everything (roster data, sprites, engine, UI) is embedded in that one file (~1 MB).
 
-![layout](docs/layout.txt)
+[Layout overview](docs/layout.txt)
 
 ## What it does
 
@@ -69,5 +71,17 @@ The page footer shows the embedded data version/revision so you can tell which r
 
 ## Data & credits
 
-Species, Mega and ability data come from the `champions_logic` database (Regulation M-B). Sprites are © Nintendo / Game Freak,
-vendored for local use only — this repository is private for that reason; do not redistribute the built file publicly with them embedded.
+Species, Mega and ability data come from the `champions_logic` database (Regulation M-B).
+Pokémon and sprites belong to their respective owners, including Nintendo, Game Freak, and The Pokémon Company.
+This is an unofficial fan tool and is not affiliated with or endorsed by them.
+
+## Publishing
+
+GitHub Pages serves the committed `speed-tiers.html` at the site root and at `/speed-tiers.html`.
+The [Pages workflow](.github/workflows/pages.yml) runs the engine tests and deploys on pushes to `master`,
+or when manually dispatched from the Actions tab. Pages must use **GitHub Actions** as its source.
+After editing the app template or engine, run `python3 build.py` and commit the regenerated
+`speed-tiers.html` before pushing. Deployment uses the committed app and needs no database access.
+
+Saved setups are specific to the browser and origin. To move a setup from a downloaded copy to
+the hosted app, use **Export** in the old copy and **Import** on the site.
