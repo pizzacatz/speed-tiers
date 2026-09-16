@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Speed Lab — build against your benchmarks</title>
+<meta name="description" content="Explore one explicit Pokémon set against a group of benchmarks, with visible battle effects and reversible trials.">
+<style>/*__STYLE__*/</style>
+</head>
+<body>
+<div class="shell">
+<header class="masthead">
+  <a class="wordmark" href="#workspace" aria-label="Speed Lab workspace"><span class="brand-symbol" aria-hidden="true">↗</span><span>speed<span class="slash">/</span><em>lab</em></span></a>
+  <div class="mast-actions"><span class="edition"><i></i>Champions · <span id="regulation">M-C</span></span><span class="prototype">CONCEPT 02</span><button id="reset" class="text-button">Reset demo</button></div>
+</header>
+<div class="intro"><div><span class="eyebrow">A set. A battlefield. A clear answer.</span><h1>Build for the matchups that matter.</h1><p>Compare your set against the group. Try a change before you commit.</p></div></div>
+<section class="battlefield" aria-labelledby="fieldTitle">
+  <div class="field-heading"><span class="section-index">01</span><div><h2 id="fieldTitle">Battlefield</h2><span>Shared by every comparison</span></div></div>
+  <div class="field-controls">
+    <label class="weather-control"><span>Weather</span><select id="weather" aria-label="Shared weather"><option value="">None</option><option value="sun">Sun</option><option value="rain">Rain</option><option value="sand">Sandstorm</option><option value="snow">Snow</option></select></label>
+    <button id="trick" class="toggle" aria-pressed="false">Trick Room <span aria-hidden="true">↕</span></button>
+    <button id="terrain" class="toggle" aria-pressed="false">Electric Terrain</button>
+    <span class="field-separator" aria-hidden="true"></span>
+    <div class="wind-group"><span>Tailwind</span><button id="windMine" class="toggle" aria-pressed="false">Your side</button><button id="windOpp" class="toggle" aria-pressed="false">Opponents</button></div>
+  </div>
+</section>
+<main id="workspace" class="workspace">
+<aside class="set-column" aria-label="Your set and experiments">
+  <section class="your-set" aria-labelledby="yourSetTitle">
+    <div class="panel-kicker"><span class="section-index">02</span><h2 id="yourSetTitle">Your set</h2><span id="setMode" class="mode-label">CURRENT</span></div>
+    <div id="identity" class="identity"></div>
+    <div class="speed-summary"><div><span id="yourSpeed" class="speed-number"></span><span class="speed-unit">effective Speed</span></div><span id="originalSpeed" class="original-speed"></span></div>
+    <label for="sp" class="sp-label"><span>Speed investment</span><span class="sp-input-wrap"><input id="sp" type="number" min="0" max="32" aria-label="Your Speed Stat Points"><span>/ 32 SP</span></span></label>
+    <input id="spRange" type="range" min="0" max="32" aria-label="Your Speed investment slider">
+    <div class="range-ends"><span>Uninvested</span><span>Maximum</span></div>
+    <div class="set-fields"><label>Alignment<select id="align"><option value="-1">−Speed ×0.9</option><option value="0">Neutral ×1.0</option><option value="1">+Speed ×1.1</option></select></label><label>Held item<select id="item"><option value="none">None</option><option value="scarf">Choice Scarf</option><option value="ironball">Iron Ball</option></select></label></div>
+    <label class="ability-field">Ability<select id="ability"></select></label>
+    <div id="abilityStatus" class="ability-status"></div>
+    <button id="ownEffects" class="effects-control"><span><strong>Individual battle effects</strong><span id="ownEffectsSummary"></span></span><span aria-hidden="true">↗</span></button>
+    <p class="edit-hint">Edits start a trial. Your current set stays intact until you keep the changes.</p>
+  </section>
+  <section class="experiments" aria-labelledby="experimentsTitle"><div class="subheading"><h2 id="experimentsTitle">Try a different approach</h2><span aria-hidden="true">↗</span></div><p>See the impact across your whole group.</p><div id="suggestions"></div></section>
+</aside>
+<section class="benchmark-column" aria-labelledby="benchTitle">
+  <div class="benchmark-heading"><div><div class="panel-kicker"><span class="section-index">03</span><h2 id="benchTitle">Your benchmarks</h2></div><p>Move first against these explicit sets.</p></div><button id="addBenchmark" class="primary"><span aria-hidden="true">＋</span> Add benchmark</button></div>
+  <div class="coverage" id="coverage" aria-live="polite"></div>
+  <div class="coverage-track" id="coverageTrack" aria-hidden="true"></div>
+  <div class="board-toolbar"><div class="view-tabs" role="group" aria-label="Comparison view"><button id="resultsView" aria-pressed="true">Results</button><button id="ladderView" aria-pressed="false">Speed ladder</button></div><label class="filter-control"><input type="checkbox" id="needsWork"> Not yet first</label></div>
+  <div id="results" class="results"></div>
+  <div id="ladder" class="ladder" hidden></div>
+  <p class="board-note" id="boardNote"></p>
+  <section class="selected-detail" id="selectedDetail" aria-label="Selected benchmark explanation"></section>
+</section>
+</main>
+<footer class="page-footer"><span>Level 50 · Perfect IVs · champions-logic <span id="revision"></span></span><button id="modelNotes" class="text-button">Calculation assumptions</button><span>Interactive concept · kept changes last for this session</span></footer>
+</div>
+<section id="trialBar" class="trial-bar" hidden aria-label="Trial changes">
+  <div class="trial-heading"><span class="trial-dot" aria-hidden="true"></span><div><strong>Trying a change</strong><p id="trialDescription"></p></div></div><div id="trialImpact" class="trial-impact"></div><div class="trial-actions"><button id="revertTrial" class="revert">Revert</button><button id="keepTrial" class="keep">Keep changes <span aria-hidden="true">↗</span></button></div>
+</section>
+<dialog id="dialog" aria-labelledby="dialogTitle"><div class="dialog-header"><h2 id="dialogTitle"></h2><button id="closeDialog" class="icon-button" aria-label="Close dialog">×</button></div><div id="dialogBody"></div></dialog>
+<div id="notice" class="notice" role="status"></div>
+<script id="data" type="application/json">/*__DATA__*/</script>
+<script>/*__ENGINE__*/</script>
+<script>/*__APP__*/</script>
+</body>
+</html>
